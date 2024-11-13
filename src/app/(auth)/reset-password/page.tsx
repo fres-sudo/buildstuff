@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { resetPassword } from "@/lib/api/auth/auth-client";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const resetPassSchema = z
 	.object({

@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import ProvidersComponent from "./providers";
 import { signIn, useSession } from "@/lib/api/auth/auth-client";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const loginSchema = z.object({
 	email: z.string().email(),

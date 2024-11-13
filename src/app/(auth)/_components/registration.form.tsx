@@ -2,6 +2,7 @@
 import { Icons } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Form,
 	FormControl,
@@ -49,6 +50,7 @@ const RegistrationForm = () => {
 					name: data.fullName,
 					email: data.email,
 					password: data.password,
+					callbackURL: "/login",
 				},
 				{
 					onError: (ctx) => {
@@ -57,16 +59,19 @@ const RegistrationForm = () => {
 							setError("Please verify your email address");
 						}
 						//you can also show the original error message
-						alert(ctx.error.message);
+						setError(ctx.error.message);
 					},
 				}
 			)
-			.then((_) => {
-				setIsLoading(false);
-				setSuccess(true);
-			})
 			.catch((error) => {
-				setError("Invalid email or password");
+				setIsLoading(false);
+				setError("An error occurred while creating your account");
+			})
+			.then((response) => {
+				setIsLoading(false);
+				if (!response) {
+					setSuccess(true);
+				}
 			});
 	}
 
@@ -74,12 +79,12 @@ const RegistrationForm = () => {
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="space-y-2 w-full">
+				className="w-full">
 				<FormField
 					control={form.control}
 					name="fullName"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="mb-2">
 							<FormLabel>Full Name</FormLabel>
 							<FormControl>
 								<Input
@@ -95,7 +100,7 @@ const RegistrationForm = () => {
 					control={form.control}
 					name="email"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="mb-2">
 							<FormLabel>Email</FormLabel>
 							<FormControl>
 								<Input
@@ -111,7 +116,7 @@ const RegistrationForm = () => {
 					control={form.control}
 					name="password"
 					render={({ field }) => (
-						<FormItem>
+						<FormItem className="mb-2">
 							<FormLabel>Password</FormLabel>
 							<FormControl>
 								<Input
@@ -125,14 +130,18 @@ const RegistrationForm = () => {
 					)}
 				/>
 				{error && (
-					<Alert variant="destructive">
+					<Alert
+						variant="destructive"
+						className="mt-4">
 						<AlertCircle className="h-4 w-4" />
 						<AlertTitle>Error</AlertTitle>
 						<AlertDescription>{error}</AlertDescription>
 					</Alert>
 				)}
 				{success && (
-					<Alert variant="success">
+					<Alert
+						variant="success"
+						className="mt-4">
 						<AlertCircle className="h-4 w-4 " />
 						<AlertTitle>Success</AlertTitle>
 						<AlertDescription>
@@ -141,11 +150,20 @@ const RegistrationForm = () => {
 					</Alert>
 				)}
 				<Button
-					className="w-full "
+					className="w-full mt-4 mb-2"
 					disabled={isLoading}>
 					{isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
 					Sign Up
 				</Button>
+
+				<p className="text-xs font-thin text-center text-muted-foreground">
+					By signing in you will accept out{" "}
+					<a
+						href="/"
+						className="hover:underline">
+						Terms and Conditions
+					</a>
+				</p>
 			</form>
 		</Form>
 	);

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Input } from "@/components/ui/input";
 import { CommandDialogMenu } from "@/components/cmdk";
+import UserPropic from "@/components/layout/user-propic";
 
 export default function Page({ children }: any) {
 	return (
@@ -42,8 +43,9 @@ export default function Page({ children }: any) {
 							</BreadcrumbList>
 						</Breadcrumb>
 					</div>
-					<div className="pr-8">
+					<div className="pr-8 flex gap-4 items-center">
 						<CommandDialogMenu />
+						<UserPropic />
 					</div>
 				</header>
 				<main className="flex flex-col">{children}</main>

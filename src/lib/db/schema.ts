@@ -73,6 +73,20 @@ export const workspaceMembers = pgTable("workspace_members", {
 	joinedAt: timestamp("joined_at").defaultNow(),
 });
 
+export const workspaceInvitations = pgTable("workspace_invitations", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	workspaceId: text("workspace_id").references(() => workspaces.id, {
+		onDelete: "cascade",
+	}),
+	email: text("email").notNull(),
+	token: text("token").unique().notNull(),
+	role: text("role").notNull(),
+	expiresAt: timestamp("expires_at").notNull(),
+	createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const projects = pgTable("projects", {
 	id: text("id")
 		.primaryKey()
@@ -184,6 +198,7 @@ export const userRelations = relations(user, ({ many }) => ({
 export const workspacesRelations = relations(workspaces, ({ many, one }) => ({
 	members: many(workspaceMembers),
 	projects: many(projects),
+	invitations: many(workspaceInvitations),
 	owner: one(user, {
 		fields: [workspaces.ownerId],
 		references: [user.id],
@@ -200,6 +215,16 @@ export const workSpaceMembersRelations = relations(
 		user: one(user, {
 			fields: [workspaceMembers.userId],
 			references: [user.id],
+		}),
+	})
+);
+
+export const workspaceInvitationsRelations = relations(
+	workspaceInvitations,
+	({ one }) => ({
+		workspace: one(workspaces, {
+			fields: [workspaceInvitations.workspaceId],
+			references: [workspaces.id],
 		}),
 	})
 );

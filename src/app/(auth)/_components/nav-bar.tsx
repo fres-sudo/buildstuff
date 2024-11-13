@@ -15,31 +15,31 @@ const AuthNavBar = () => {
 	};
 	return (
 		<nav className="flex items-center justify-between px-4 sm:px-6 py-4 border rounded-full mb-40">
-			<BuildStuffLogo />
+			<BuildStuffLogo href="/" />
 			<div className="flex flex-row items-center">
 				<div className="hidden lg:flex space-x-8 items-center mr-10">
 					<Link
-						href="#features"
+						href="/#features"
 						className="hover:underline underline-offset-4">
 						Features
 					</Link>
 					<Link
-						href="#pricing"
+						href="/#pricing"
 						className="hover:underline underline-offset-4">
 						Pricing
 					</Link>
 					<Link
-						href="#about"
+						href="/#about"
 						className="hover:underline underline-offset-4">
 						About
 					</Link>
 					<Link
-						href="#FAQ"
+						href="/#FAQ"
 						className="hover:underline underline-offset-4">
 						FAQ
 					</Link>
 					<Link
-						href="#contact"
+						href="/#contact"
 						className="hover:underline underline-offset-4">
 						Contact
 					</Link>

@@ -5,6 +5,7 @@ import {
 	Bell,
 	ChevronsUpDown,
 	CreditCard,
+	Link,
 	LogOut,
 	Sidebar,
 	Sparkles,
@@ -38,7 +39,7 @@ export function NavUser() {
 	if (!session)
 		return (
 			<SidebarMenuButton>
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-2 p-2">
 					<Skeleton className="h-8 w-8 rounded-lg" />
 					<div className="hidden lg:grid flex-1 gap-1">
 						<Skeleton className="h-3 w-24" />
@@ -104,22 +105,35 @@ export function NavUser() {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									router.push("/#pricing");
+								}}>
 								<Sparkles />
 								Upgrade to Pro
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
+
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									router.push("/account");
+								}}>
 								<BadgeCheck />
 								Account
 							</DropdownMenuItem>
-							<DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									router.push("/account/billings");
+								}}>
 								<CreditCard />
 								Billing
 							</DropdownMenuItem>
-							<DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => {
+									router.push("/account/notifications");
+								}}>
 								<Bell />
 								Notifications
 							</DropdownMenuItem>
@@ -130,7 +144,7 @@ export function NavUser() {
 								await signOut({
 									fetchOptions: {
 										onSuccess: () => {
-											router.push("/login"); // redirect to login page
+											router.push("/login");
 										},
 									},
 								})
