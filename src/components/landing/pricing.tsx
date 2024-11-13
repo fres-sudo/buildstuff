@@ -1,6 +1,7 @@
 import { Check, Minus, MoveRight, PhoneCall } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import NumberTicker from "../ui/number-ticker";
 
 export const Pricing = () => (
 	<div className="w-full py-20 lg:py-40">
@@ -18,14 +19,14 @@ export const Pricing = () => (
 				<div className="grid text-left w-full grid-cols-3 lg:grid-cols-4 divide-x pt-20">
 					<div className="col-span-3 lg:col-span-1"></div>
 					<div className="px-3 py-1 md:px-6 md:py-4  gap-2 flex flex-col">
-						<p className="text-2xl tracking-tight">Solo Builder</p>
+						<p className="text-2xl tracking-tight">Self Hosted</p>
 						<p className="text-sm text-muted-foreground">
 							Our goal is to streamline SMB trade, making it easier and faster
 							than ever for everyone and everywhere.
 						</p>
-						<p className="flex flex-col lg:flex-row lg:items-center gap-2 text-xl mt-8">
-							<span className="text-4xl">$0</span>
-							<span className="text-sm text-muted-foreground"> / month</span>
+						<p className="flex flex-col lg:flex-row lg:items-end gap-2 text-xl mt-8">
+							<span className="text-4xl">Free</span>
+							<span className="text-sm text-muted-foreground">forever</span>
 						</p>
 						<Button
 							variant="outline"
@@ -34,17 +35,14 @@ export const Pricing = () => (
 						</Button>
 					</div>
 					<div className="px-3 py-1 md:px-6 md:py-4 gap-2 flex flex-col">
-						<p className="text-2xl tracking-tight">Small Team</p>
+						<p className="text-2xl tracking-tight">Small Builders</p>
 						<p className="text-sm text-muted-foreground">
 							Our goal is to streamline SMB trade, making it easier and faster
 							than ever for everyone and everywhere.
 						</p>
-						<p className="flex flex-col lg:flex-row lg:items-center gap-2 text-xl mt-8">
-							<span className="text-4xl">$2.99</span>
-							<span className="text-sm text-muted-foreground">
-								{" "}
-								/ user / month
-							</span>
+						<p className="flex flex-col items-start justify-start lg:flex-row lg:items-end gap-2 text-xl mt-8">
+							<span className="text-4xl">Free</span>
+							<span className="text-sm text-muted-foreground">forever</span>
 						</p>
 						<Button className="gap-4 mt-8">
 							Try it <MoveRight className="w-4 h-4" />
@@ -57,7 +55,14 @@ export const Pricing = () => (
 							than ever for everyone and everywhere.
 						</p>
 						<p className="flex flex-col lg:flex-row lg:items-center gap-2 text-xl mt-8">
-							<span className="text-4xl">$5.99</span>
+							<span className="text-4xl flex">
+								${" "}
+								<NumberTicker
+									className="tracking-tighter whitespace-pre-wrap font-medium text-black dark:text-white"
+									value={4.99}
+									decimalPlaces={2}
+								/>
+							</span>
 							<span className="text-sm text-muted-foreground">
 								{" "}
 								/ user / month

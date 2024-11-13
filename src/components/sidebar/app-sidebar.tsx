@@ -7,6 +7,8 @@ import {
 	BookOpen,
 	Bot,
 	ChartLine,
+	Check,
+	CircleCheck,
 	Command,
 	Frame,
 	GalleryVerticalEnd,
@@ -23,7 +25,7 @@ import {
 import { NavMain } from "./nav-main";
 import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
-import { TeamSwitcher } from "./team-switcher";
+import { WorkSpaceSwitcher } from "./team-switcher";
 import {
 	Sidebar,
 	SidebarContent,
@@ -31,13 +33,12 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { is } from "drizzle-orm";
 
 const data = {
 	user: {
 		name: "fres",
 		email: "fres@fres.space",
-		avatar: "/avatars/shadcn.jpg",
+		image: "/avatars/shadcn.jpg",
 	},
 	teams: [
 		{
@@ -62,6 +63,12 @@ const data = {
 			url: "/home",
 			icon: Home,
 		},
+		{
+			title: "My tasks",
+			url: "/my-tasks",
+			icon: CircleCheck,
+		},
+
 		{
 			title: "Inbox",
 			url: "/inbox",
@@ -133,14 +140,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			collapsible="icon"
 			{...props}>
 			<SidebarHeader>
-				<TeamSwitcher teams={data.teams} />
+				<WorkSpaceSwitcher workSpaces={data.teams} />
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={data.navMain} />
 				<NavProjects projects={data.projects} />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={data.user} />
+				<NavUser />
 			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>

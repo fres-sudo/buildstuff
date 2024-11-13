@@ -24,6 +24,7 @@ import {
 	Twitter,
 	User,
 	X,
+	Calendar,
 	type Icon as LucideIcon,
 } from "lucide-react";
 
@@ -54,6 +55,7 @@ export const Icons = {
 	gitHub: Github,
 	twitter: Twitter,
 	check: Check,
+	calendar: Calendar,
 	google: ({ ...props }: LucideProps) => (
 		<svg
 			aria-hidden="true"

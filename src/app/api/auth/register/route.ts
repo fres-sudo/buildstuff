@@ -1,5 +1,5 @@
-import { db } from "@/lib/server/db";
-import { users } from "@/lib/server/db/schema";
+import { db } from "@/lib/api/db";
+import { users } from "@/lib/api/db/schema";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
