@@ -11,41 +11,20 @@ import { TRPCError } from "@trpc/server";
 import { takeFirst, takeFirstOrThrow } from "@/lib/utils";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-
-const createWorkspaceSchema = z.object({
-	name: z.string().min(1, "Il nome della workspace è richiesto"),
-	description: z.string().optional(),
-});
-
-const updateWorkspaceSchema = z.object({
-	id: z.string(),
-	name: z.string().min(1, "Il nome della workspace è richiesto"),
-	description: z.string().optional(),
-});
-
-const addMemberSchema = z.object({
-	workspaceId: z.string(),
-	userId: z.string(),
-	role: z.enum(["admin", "member"]),
-});
-
-const removeMemberSchema = z.object({
-	workspaceId: z.string(),
-	userId: z.string(),
-});
-
-const invitationLinkSchema = z.object({
-	token: z.string(),
-	role: z.string(),
-	email: z.string().email(),
-});
+import {
+	addMemberSchema,
+	createWorkspaceSchema,
+	invitationLinkSchema,
+	removeMemberSchema,
+	updateWorkspaceSchema,
+} from "@/lib/dtos/workspaces.dto";
 
 export const workspacesRouter = createTRPCRouter({
 	// **Create Workspace**
 	create: protectedProcedure
 		.input(createWorkspaceSchema)
 		.mutation(async ({ ctx, input }) => {
-			const { name, description } = input;
+			const { name, description, color } = input;
 			const userId = ctx.session.user.id;
 
 			// Controlla se l'utente ha già una workspace con lo stesso nome
@@ -66,6 +45,7 @@ export const workspacesRouter = createTRPCRouter({
 				.values({
 					name,
 					description,
+					color,
 					ownerId: userId,
 				})
 				.returning()
@@ -133,7 +113,7 @@ export const workspacesRouter = createTRPCRouter({
 	update: protectedProcedure
 		.input(updateWorkspaceSchema)
 		.mutation(async ({ ctx, input }) => {
-			const { id, name, description } = input;
+			const { id, name, description, color } = input;
 			const userId = ctx.session.user.id;
 
 			// Controlla se l'utente è l'owner della workspace
@@ -160,6 +140,7 @@ export const workspacesRouter = createTRPCRouter({
 				.set({
 					name,
 					description,
+					color,
 					updatedAt: new Date(),
 				})
 				.where(eq(workspaces.id, id))

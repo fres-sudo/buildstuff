@@ -4,6 +4,7 @@ import { type NextRequest } from "next/server";
 import { env } from "@/env";
 import { appRouter } from "@/lib/api/root";
 import { createTRPCContext } from "@/lib/api/trpc";
+import { toast } from "sonner";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -28,7 +29,9 @@ const handler = (req: NextRequest) =>
 							`❌ tRPC failed on ${path ?? "<no-path>"}: ${error.message}`
 						);
 					}
-				: undefined,
+				: ({ path, error }) => {
+						toast.error(error.message);
+					},
 	});
 
 export { handler as GET, handler as POST };

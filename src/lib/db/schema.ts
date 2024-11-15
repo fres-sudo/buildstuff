@@ -5,9 +5,11 @@ import {
 	integer,
 	text,
 	boolean,
+	varchar,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
+import { timestamps } from "./utils";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -56,9 +58,9 @@ export const workspaces = pgTable("workspaces", {
 		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
 	description: text("description"),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	color: text("color").default("#0000FF"),
 	ownerId: text("owner_id").references(() => user.id, { onDelete: "cascade" }),
+	...timestamps,
 });
 
 export const workspaceMembers = pgTable("workspace_members", {
@@ -84,7 +86,7 @@ export const workspaceInvitations = pgTable("workspace_invitations", {
 	token: text("token").unique().notNull(),
 	role: text("role").notNull(),
 	expiresAt: timestamp("expires_at").notNull(),
-	createdAt: timestamp("created_at").defaultNow(),
+	...timestamps,
 });
 
 export const projects = pgTable("projects", {
@@ -96,8 +98,7 @@ export const projects = pgTable("projects", {
 	workspaceId: text("workspace_id").references(() => workspaces.id, {
 		onDelete: "cascade",
 	}),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	...timestamps,
 	status: text("status").notNull(),
 });
 
@@ -126,8 +127,7 @@ export const tasks = pgTable("tasks", {
 	status: text("status").notNull(),
 	priority: text("priority").notNull(),
 	dueDate: timestamp("due_date"),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	...timestamps,
 });
 
 export const subTasks = pgTable("sub_tasks", {
@@ -139,8 +139,7 @@ export const subTasks = pgTable("sub_tasks", {
 	parentTaskId: text("task_id").references(() => tasks.id, {
 		onDelete: "cascade",
 	}),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	...timestamps,
 });
 
 export const timeEntries = pgTable("time_entries", {
@@ -152,7 +151,7 @@ export const timeEntries = pgTable("time_entries", {
 	duration: integer("duration").notNull(), // in minutes
 	date: timestamp("date").notNull(),
 	description: text("description"),
-	createdAt: timestamp("created_at").defaultNow(),
+	...timestamps,
 });
 
 export const notes = pgTable("notes", {
@@ -165,8 +164,7 @@ export const notes = pgTable("notes", {
 		onDelete: "cascade",
 	}),
 	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	...timestamps,
 });
 
 export const attachments = pgTable("attachments", {
@@ -180,8 +178,58 @@ export const attachments = pgTable("attachments", {
 		onDelete: "cascade",
 	}),
 	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
-	createdAt: timestamp("created_at").defaultNow(),
+	...timestamps,
 });
+
+export const todos = pgTable("todos", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	code: text("code")
+		.default(`'TD' || LPAD(nextval('patient_code_seq')::text, 5, '0')`)
+		.notNull(),
+	title: text("title"),
+	status: text("status", {
+		enum: ["todo", "in-progress", "done", "canceled"],
+	})
+		.notNull()
+		.default("todo"),
+	priority: text("priority", {
+		enum: ["low", "medium", "high", "urgent"],
+	}).notNull(),
+	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+	archived: boolean("archived").notNull().default(false),
+	completedAt: timestamp("completed_at"),
+	dueDate: timestamp("due_date").notNull().defaultNow(),
+	...timestamps,
+});
+export const labels = pgTable("labels", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	name: text("name").notNull(),
+	color: text("color").default("#0000FF"),
+	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+	...timestamps,
+});
+
+export const todoLabels = pgTable(
+	"todo_labels",
+	{
+		todoId: text("todo_id")
+			.notNull()
+			.references(() => todos.id, { onDelete: "cascade" }),
+		labelId: text("label_id")
+			.notNull()
+			.references(() => labels.id, {
+				onDelete: "cascade",
+			}),
+		...timestamps,
+	},
+	(todoLabels) => ({
+		pk: primaryKey({ columns: [todoLabels.todoId, todoLabels.labelId] }),
+	})
+);
 
 // Relations
 export const userRelations = relations(user, ({ many }) => ({
@@ -327,4 +375,31 @@ export const sessionsRelations = relations(session, ({ one }) => ({
 		fields: [session.userId],
 		references: [user.id],
 	}),
+}));
+
+export const todoRelations = relations(todos, ({ one, many }) => ({
+	user: one(user, {
+		fields: [todos.userId],
+		references: [user.id],
+	}),
+	labels: many(todoLabels),
+}));
+
+export const todoLabelRelations = relations(todoLabels, ({ one }) => ({
+	todo: one(todos, {
+		fields: [todoLabels.todoId],
+		references: [todos.id],
+	}),
+	label: one(labels, {
+		fields: [todoLabels.labelId],
+		references: [labels.id],
+	}),
+}));
+
+export const labelRelations = relations(labels, ({ many, one }) => ({
+	user: one(user, {
+		fields: [labels.userId],
+		references: [user.id],
+	}),
+	todos: many(todoLabels),
 }));

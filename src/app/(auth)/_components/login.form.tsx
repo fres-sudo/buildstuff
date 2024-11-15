@@ -2,11 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/icons";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +19,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import ProvidersComponent from "./providers";
 import { signIn, useSession } from "@/lib/api/auth/auth-client";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const loginSchema = z.object({
 	email: z.string().email(),

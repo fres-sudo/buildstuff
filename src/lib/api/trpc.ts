@@ -12,7 +12,6 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/lib/db";
-import { useSession } from "./auth/auth-client";
 import { auth } from "./auth/auth";
 import { headers } from "next/headers";
 
@@ -32,6 +31,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 	const session = await auth.api.getSession({
 		headers: await headers(),
 	});
+
 	return {
 		db,
 		session,
@@ -99,7 +99,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 	const result = await next();
 
 	const end = Date.now();
-	console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+	console.log(`⏰ [TRPC] ${path} took ${end - start}ms to execute ⏰`);
 
 	return result;
 });

@@ -14,10 +14,12 @@ import {
 	GalleryVerticalEnd,
 	Home,
 	Hourglass,
+	LayoutList,
 	Map,
 	MessageSquareCode,
 	MessageSquareDashedIcon,
 	MessageSquareDot,
+	PersonStanding,
 	PieChart,
 	Settings2,
 	SquareTerminal,
@@ -68,12 +70,6 @@ const data = {
 			url: "/my-tasks",
 			icon: CircleCheck,
 		},
-
-		{
-			title: "Inbox",
-			url: "/inbox",
-			icon: Bell,
-		},
 		{
 			title: "Messages",
 			url: "/messages",
@@ -89,29 +85,27 @@ const data = {
 			url: "/timesheet",
 			icon: Hourglass,
 		},
+	],
+	personal: [
 		{
-			title: "Settings",
-			url: "#",
-			icon: Settings2,
-			isCollapsible: true,
-			items: [
-				{
-					title: "General",
-					url: "#",
-				},
-				{
-					title: "Team",
-					url: "#",
-				},
-				{
-					title: "Billing",
-					url: "#",
-				},
-				{
-					title: "Limits",
-					url: "#",
-				},
-			],
+			title: "Inbox",
+			url: "/inbox",
+			icon: Bell,
+		},
+		{
+			title: "Todos",
+			url: "/todos",
+			icon: LayoutList,
+		},
+		{
+			title: "Account",
+			url: "/account",
+			icon: PersonStanding,
+		},
+		{
+			title: "Help",
+			url: "/help",
+			icon: Bot,
 		},
 	],
 	projects: [
@@ -143,7 +137,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<WorkSpaceSwitcher workSpaces={data.teams} />
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<NavMain
+					items={data.navMain}
+					title="Platform"
+				/>
+				<NavMain
+					items={data.personal}
+					title="Personal"
+				/>
 				<NavProjects projects={data.projects} />
 			</SidebarContent>
 			<SidebarFooter>

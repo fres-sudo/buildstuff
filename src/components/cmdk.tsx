@@ -43,7 +43,7 @@ export function CommandDialogMenu() {
 			<Button
 				variant={"outline"}
 				onClick={() => setOpen(true)}>
-				<p className="text-sm items-center justify-between flex gap-8 text-muted-foreground">
+				<div className="text-sm items-center justify-between flex gap-8 text-muted-foreground">
 					Search anything...{" "}
 					<div className="items-center justify-between flex gap-2">
 						<kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-lg font-medium text-muted-foreground opacity-100">
@@ -53,7 +53,7 @@ export function CommandDialogMenu() {
 							K
 						</kbd>
 					</div>
-				</p>
+				</div>
 			</Button>
 
 			<CommandDialog

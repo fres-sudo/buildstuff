@@ -15,6 +15,41 @@
       "when": 1731364520479,
       "tag": "0001_omniscient_aaron_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1731624962577,
+      "tag": "0002_broad_bulldozer",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1731687287571,
+      "tag": "0003_salty_silver_surfer",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1731687337210,
+      "tag": "0004_light_next_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1731687377097,
+      "tag": "0005_wealthy_young_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1731688202471,
+      "tag": "0006_bitter_magdalene",
+      "breakpoints": true
     }
   ]
 }

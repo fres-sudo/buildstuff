@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { BuildStuffIcon, BuildStuffLogo } from "../logo";
 import { Separator } from "../ui/separator";
+import WorkSpaceDialog from "./workspace-dialog";
 
 export function WorkSpaceSwitcher({
 	workSpaces,
@@ -84,13 +85,8 @@ export function WorkSpaceSwitcher({
 							</DropdownMenuItem>
 						))}
 						<DropdownMenuSeparator />
-						<DropdownMenuItem className="gap-2 p-2">
-							<div className="flex size-6 items-center justify-center rounded-md border bg-background">
-								<Plus className="size-4" />
-							</div>
-							<div className="font-medium text-muted-foreground">
-								Add work space
-							</div>
+						<DropdownMenuItem asChild>
+							<WorkSpaceDialog />
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

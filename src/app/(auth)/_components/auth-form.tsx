@@ -18,7 +18,6 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { api } from "@/trpc/server";
 
 const emailSchema = z.object({
 	email: z.string().email(),

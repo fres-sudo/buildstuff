@@ -13,7 +13,6 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Input } from "@/components/ui/input";
 import { CommandDialogMenu } from "@/components/cmdk";
 import UserPropic from "@/components/layout/user-propic";
 
