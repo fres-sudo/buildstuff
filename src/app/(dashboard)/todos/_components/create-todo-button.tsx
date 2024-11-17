@@ -43,37 +43,42 @@ import {
 	NewLabel,
 	NewTodoLabel,
 } from "@/lib/db/schema.types";
-import { newTodoSchema, newLabelSchema } from "@/lib/db/schema.zod";
+import { newTodoSchema } from "@/lib/db/schema.zod";
 import { priorityItems } from "./create-todo.form";
 import { Icons } from "@/components/icons";
+import { api } from "@/trpc/react";
+import SelectOrCreateLabel from "@/components/select-or-create-label";
+import SelectWithIcons from "@/components/ui/select-with-icons";
 
 interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {}
 
 export function CreateTodoSheet({ ...props }: UpdateTaskSheetProps) {
-	const [isUpdatePending, startUpdateTransition] = React.useTransition();
-	const [newLabel, setNewLabel] = React.useState("");
+	const createTodoMutation = api.todos.create.useMutation();
 
 	const form = useForm<NewTodo>({
 		resolver: zodResolver(newTodoSchema),
 	});
 
+	const [isUpdatePending, startUpdateTransition] = React.useTransition();
+
 	async function onSubmit(input: NewTodo) {
 		startUpdateTransition(async () => {
+			const newTodo = await createTodoMutation.mutateAsync(input);
 			form.reset();
 			props.onOpenChange?.(false);
-			toast({
-				title: "Task updated",
-				description: "The task details have been updated.",
-			});
+			if (newTodo) {
+				toast({
+					title: "Todo Created",
+					description: "The todo has been created successfully.",
+				});
+			} else {
+				toast({
+					title: "Error",
+					description: "An error occurred while creating the todo.",
+				});
+			}
 		});
-	}
-
-	async function handleCreateLabel() {
-		if (newLabel.trim() === "") return;
-		// const label = await onCreateLabel({ name: newLabel, color: "#0000FF" });
-		// await onCreateTodoLabel({ todoId: todo!.id, labelId: label.id });
-		setNewLabel("");
 	}
 
 	return (
@@ -84,11 +89,11 @@ export function CreateTodoSheet({ ...props }: UpdateTaskSheetProps) {
 					Add Todo
 				</Button>
 			</SheetTrigger>
-			<SheetContent className="flex flex-col gap-6 sm:max-w-md ">
+			<SheetContent className="flex flex-col sm:max-w-md ">
 				<SheetHeader className="text-left">
-					<SheetTitle>Update task</SheetTitle>
+					<SheetTitle>Create Todo 📝</SheetTitle>
 					<SheetDescription>
-						Update the task details and save the changes
+						Create a new Todo and get to work!
 					</SheetDescription>
 				</SheetHeader>
 				<Form {...form}>
@@ -113,110 +118,20 @@ export function CreateTodoSheet({ ...props }: UpdateTaskSheetProps) {
 								</FormItem>
 							)}
 						/>
-						<FormItem>
-							<FormLabel>Label</FormLabel>
-							<Select
-								onValueChange={
-									(value) => {}
-									// onCreateTodoLabel({ todoId: todo!.id, labelId: value })
-								}
-								defaultValue="">
-								<FormControl>
-									<SelectTrigger className="capitalize">
-										<SelectValue placeholder="Select a label" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectGroup>
-										{/* {labels.map((label) => (
-											<SelectItem
-												key={label.id}
-												value={label.id}
-												className="capitalize">
-												{label.name}
-											</SelectItem>
-										))} */}
-									</SelectGroup>
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-						<FormItem>
-							<FormLabel>Create new label</FormLabel>
-							<FormControl>
-								<Input
-									placeholder="New label"
-									value={newLabel}
-									onChange={(e) => setNewLabel(e.target.value)}
-								/>
-							</FormControl>
-							<Button
-								onClick={handleCreateLabel}
-								className="mt-2">
-								Add Label
-							</Button>
-						</FormItem>
-						<FormField
-							control={form.control}
-							name="status"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Status</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}>
-										<FormControl>
-											<SelectTrigger className="capitalize">
-												<SelectValue placeholder="Select a status" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectGroup>
-												{["todo", "in-progress", "done", "canceled"].map(
-													(item) => (
-														<SelectItem
-															key={item}
-															value={item}
-															className="capitalize">
-															{item}
-														</SelectItem>
-													)
-												)}
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
 						<FormField
 							control={form.control}
 							name="priority"
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Priority</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}>
-										<FormControl>
-											<SelectTrigger className="capitalize">
-												<SelectValue placeholder="Select a priority" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											<SelectGroup>
-												{priorityItems.map((item) => (
-													<SelectItem
-														key={item.value}
-														value={item.value}
-														className="capitalize">
-														<item.icon className="mr-2 h-4 w-4" />
-														{item.label}
-													</SelectItem>
-												))}
-											</SelectGroup>
-										</SelectContent>
-									</Select>
+									<FormControl>
+										<SelectWithIcons
+											onValueChange={field.onChange}
+											defaultValue={field.value}
+											placeholder="Select a Priority"
+											items={priorityItems}
+										/>
+									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}

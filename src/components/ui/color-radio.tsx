@@ -18,7 +18,7 @@ const colorHexMap: { [key: string]: string } = {
 	green: "#008000",
 };
 
-export default function ColorRadio({
+export default function gColorRadio({
 	defaultValue = "blue",
 	value,
 	onColorChange,
@@ -33,8 +33,9 @@ export default function ColorRadio({
 
 	const handleColorChange = (value: string) => {
 		setSelectedColor(value);
+		console.log("value", value);
 		if (onColorChange) {
-			onColorChange(colorHexMap[value] ?? "#4B0082");
+			onColorChange(value);
 		}
 	};
 
@@ -47,7 +48,49 @@ export default function ColorRadio({
 				className="flex gap-1.5"
 				value={selectedColor}
 				onValueChange={handleColorChange}>
-				{Object.keys(colorHexMap).map((color) => (
+				<RadioGroupItem
+					value="blue"
+					id="radio-07-blue"
+					aria-label="Blue"
+					className="size-6 border-blue-500 bg-blue-500 shadow-none data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500"
+				/>
+				<RadioGroupItem
+					value="indigo"
+					id="radio-07-indigo"
+					aria-label="Indigo"
+					className="size-6 border-indigo-500 bg-indigo-500 shadow-none data-[state=checked]:border-indigo-500 data-[state=checked]:bg-indigo-500"
+				/>
+				<RadioGroupItem
+					value="pink"
+					id="radio-07-pink"
+					aria-label="Pink"
+					className="size-6 border-pink-500 bg-pink-500 shadow-none data-[state=checked]:border-pink-500 data-[state=checked]:bg-pink-500"
+				/>
+				<RadioGroupItem
+					value="red"
+					id="radio-07-red"
+					aria-label="red"
+					className="size-6 border-red-500 bg-red-500 shadow-none data-[state=checked]:border-red-500 data-[state=checked]:bg-red-500"
+				/>
+				<RadioGroupItem
+					value="orange"
+					id="radio-07-orange"
+					aria-label="orange"
+					className="size-6 border-orange-500 bg-orange-500 shadow-none data-[state=checked]:border-orange-500 data-[state=checked]:bg-orange-500"
+				/>
+				<RadioGroupItem
+					value="yellow"
+					id="radio-07-yellow"
+					aria-label="yellow"
+					className="size-6 border-yellow-500 bg-yellow-500 shadow-none data-[state=checked]:border-yellow-500 data-[state=checked]:bg-yellow-500"
+				/>
+				<RadioGroupItem
+					value="green"
+					id="radio-07-green"
+					aria-label="green"
+					className="size-6 border-green-500 bg-green-500 shadow-none data-[state=checked]:border-green-500 data-[state=checked]:bg-green-500"
+				/>
+				{/* {Object.keys(colorHexMap).map((color) => (
 					<RadioGroupItem
 						key={color}
 						value={color}
@@ -64,7 +107,7 @@ export default function ColorRadio({
 							}
 						)}
 					/>
-				))}
+				))} */}
 			</RadioGroup>
 		</fieldset>
 	);

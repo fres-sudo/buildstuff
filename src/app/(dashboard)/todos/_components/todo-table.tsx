@@ -11,7 +11,7 @@ import { useDataTable } from "@/hooks/use-data-table";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableAdvancedToolbar } from "@/components/data-table/data-table-advanced-toolbar";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { DeleteTodosDialog } from "./delete-todo-dialog";
 import { TodosTableToolbarActions } from "./todo-table-toolbar-actions";
 import { UpdateTaskSheet } from "./update-task-sheet";
@@ -28,9 +28,9 @@ type RouterOutputs = inferRouterOutputs<AppRouter>;
 interface TodosTableProps {
 	promises: Promise<
 		[
-			RouterOutputs["todos"]["list"],
-			RouterOutputs["todos"]["getTodosStatusCounts"],
-			RouterOutputs["todos"]["getTodosPriorityCounts"],
+			Awaited<RouterOutputs["todos"]["list"]>,
+			Awaited<RouterOutputs["todos"]["getTodosStatusCounts"]>,
+			Awaited<RouterOutputs["todos"]["getTodosPriorityCounts"]>,
 		]
 	>;
 }
@@ -90,7 +90,16 @@ export function TodosTable({ promises }: TodosTableProps) {
 	});
 
 	return (
-		<>
+		<React.Suspense
+			fallback={
+				<DataTableSkeleton
+					columnCount={6}
+					searchableColumnCount={1}
+					filterableColumnCount={2}
+					cellWidths={["10rem", "40rem", "12rem", "12rem", "8rem", "8rem"]}
+					shrinkZero
+				/>
+			}>
 			<DataTable
 				table={table}
 				floatingBar={<TodosTableFloatingBar table={table} />}>
@@ -119,6 +128,6 @@ export function TodosTable({ promises }: TodosTableProps) {
 				showTrigger={false}
 				onSuccess={() => rowAction?.row.toggleSelected(false)}
 			/>
-		</>
+		</React.Suspense>
 	);
 }

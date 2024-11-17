@@ -35,30 +35,11 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { api } from "@/trpc/react";
+import { Skeleton } from "../ui/skeleton";
 
 const data = {
-	user: {
-		name: "fres",
-		email: "fres@fres.space",
-		image: "/avatars/shadcn.jpg",
-	},
-	teams: [
-		{
-			name: "Acme Inc",
-			logo: GalleryVerticalEnd,
-			plan: "Enterprise",
-		},
-		{
-			name: "Acme Corp.",
-			logo: AudioWaveform,
-			plan: "Startup",
-		},
-		{
-			name: "Evil Corp.",
-			logo: Command,
-			plan: "Free",
-		},
-	],
 	navMain: [
 		{
 			title: "Home",
@@ -108,44 +89,28 @@ const data = {
 			icon: Bot,
 		},
 	],
-	projects: [
-		{
-			name: "Design Engineering",
-			url: "#",
-			icon: Frame,
-		},
-		{
-			name: "Sales & Marketing",
-			url: "#",
-			icon: PieChart,
-		},
-		{
-			name: "Travel",
-			url: "#",
-			icon: Map,
-		},
-	],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { currentWorkspace } = useWorkspace();
 	return (
 		<Sidebar
 			variant="inset"
 			collapsible="icon"
 			{...props}>
 			<SidebarHeader>
-				<WorkSpaceSwitcher workSpaces={data.teams} />
+				<WorkSpaceSwitcher />
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain
 					items={data.navMain}
-					title="Platform"
+					title={currentWorkspace?.name || "Loading..."}
 				/>
 				<NavMain
 					items={data.personal}
 					title="Personal"
 				/>
-				<NavProjects projects={data.projects} />
+				<NavProjects />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

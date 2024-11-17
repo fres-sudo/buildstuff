@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import { CommandDialogMenu } from "@/components/cmdk";
 import UserPropic from "@/components/layout/user-propic";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 export default function Page({ children }: any) {
 	return (
@@ -28,19 +29,7 @@ export default function Page({ children }: any) {
 							orientation="vertical"
 							className="mr-2 h-4"
 						/>
-						<Breadcrumb>
-							<BreadcrumbList>
-								<BreadcrumbItem className="hidden md:block">
-									<BreadcrumbLink href="#">
-										Building Your Application
-									</BreadcrumbLink>
-								</BreadcrumbItem>
-								<BreadcrumbSeparator className="hidden md:block" />
-								<BreadcrumbItem>
-									<BreadcrumbPage>Data Fetching</BreadcrumbPage>
-								</BreadcrumbItem>
-							</BreadcrumbList>
-						</Breadcrumb>
+						<Breadcrumbs />
 					</div>
 					<div className="pr-8 flex gap-4 items-center">
 						<CommandDialogMenu />

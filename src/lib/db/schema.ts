@@ -58,7 +58,8 @@ export const workspaces = pgTable("workspaces", {
 		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
 	description: text("description"),
-	color: text("color").default("#0000FF"),
+	color: text("color").default("zinc"),
+	logo: text("logo"),
 	ownerId: text("owner_id").references(() => user.id, { onDelete: "cascade" }),
 	...timestamps,
 });
@@ -71,7 +72,9 @@ export const workspaceMembers = pgTable("workspace_members", {
 		onDelete: "cascade",
 	}),
 	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
-	role: text("role").notNull(),
+	role: text("role", { enum: ["admin", "member"] })
+		.notNull()
+		.default("member"),
 	joinedAt: timestamp("joined_at").defaultNow(),
 });
 
@@ -84,7 +87,9 @@ export const workspaceInvitations = pgTable("workspace_invitations", {
 	}),
 	email: text("email").notNull(),
 	token: text("token").unique().notNull(),
-	role: text("role").notNull(),
+	role: text("role", { enum: ["admin", "member"] })
+		.notNull()
+		.default("member"),
 	expiresAt: timestamp("expires_at").notNull(),
 	...timestamps,
 });
@@ -94,12 +99,23 @@ export const projects = pgTable("projects", {
 		.primaryKey()
 		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
-	description: text("description"),
 	workspaceId: text("workspace_id").references(() => workspaces.id, {
 		onDelete: "cascade",
 	}),
 	...timestamps,
-	status: text("status").notNull(),
+});
+
+export const projectLabels = pgTable("project_labels", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	projectId: text("project_id").references(() => projects.id, {
+		onDelete: "cascade",
+	}),
+	labelId: text("label_id").references(() => labels.id, {
+		onDelete: "cascade",
+	}),
+	...timestamps,
 });
 
 export const projectMembers = pgTable("project_members", {
@@ -110,8 +126,35 @@ export const projectMembers = pgTable("project_members", {
 		onDelete: "cascade",
 	}),
 	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
-	role: text("role").notNull(),
+	roleId: text("role_id").references(() => projectRoles.id),
 	joinedAt: timestamp("joined_at").defaultNow(),
+});
+
+export const projectRoles = pgTable("project_roles", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	projectId: text("project_id").references(() => projects.id, {
+		onDelete: "cascade",
+	}),
+	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+	role: text("role").notNull(),
+});
+
+export const projectInvitations = pgTable("project_invitations", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	projectId: text("project_id").references(() => projects.id, {
+		onDelete: "cascade",
+	}),
+	email: text("email").notNull(),
+	token: text("token").unique().notNull(),
+	role: text("role", { enum: ["admin", "member", "guest"] })
+		.notNull()
+		.default("guest"),
+	expiresAt: timestamp("expires_at").notNull(),
+	...timestamps,
 });
 
 export const tasks = pgTable("tasks", {
@@ -123,9 +166,16 @@ export const tasks = pgTable("tasks", {
 	projectId: text("project_id").references(() => projects.id, {
 		onDelete: "cascade",
 	}),
-	assigneeId: text("assignee_id").references(() => user.id),
-	status: text("status").notNull(),
-	priority: text("priority").notNull(),
+	statusId: text("status_id").references(() => taskStatuses.id, {
+		onDelete: "set null", //  Set null if status is deleted
+	}),
+	position: integer("position").default(0),
+	assigneeId: text("assignee_id").references(() => user.id, {
+		onDelete: "set null", //  Set null if user is deleted
+	}),
+	reviewerId: text("reviewer_id").references(() => user.id, {
+		onDelete: "set null", //  Set null if user is deleted
+	}),
 	dueDate: timestamp("due_date"),
 	...timestamps,
 });
@@ -140,6 +190,39 @@ export const subTasks = pgTable("sub_tasks", {
 		onDelete: "cascade",
 	}),
 	...timestamps,
+});
+
+export const taskStatuses = pgTable("task_statuses", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	projectId: text("project_id").references(() => projects.id, {
+		onDelete: "cascade",
+	}),
+	name: text("name").notNull(),
+	order: integer("order").default(0),
+	color: text("color"),
+	...timestamps,
+});
+
+export const taskLabels = pgTable("task_labels", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	taskId: text("task_id").references(() => tasks.id, { onDelete: "cascade" }),
+	labelId: text("label_id").references(() => labels.id, {
+		onDelete: "cascade",
+	}),
+	...timestamps,
+});
+
+export const defaultTaskStatuses = pgTable("default_task_statuses", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	name: text("name").notNull(),
+	color: text("color"),
+	order: integer("order").default(0),
 });
 
 export const timeEntries = pgTable("time_entries", {
@@ -203,33 +286,18 @@ export const todos = pgTable("todos", {
 	dueDate: timestamp("due_date").notNull().defaultNow(),
 	...timestamps,
 });
+
 export const labels = pgTable("labels", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
 	color: text("color").default("#0000FF"),
-	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+	workspaceId: text("workspace_id").references(() => workspaces.id, {
+		onDelete: "cascade",
+	}),
 	...timestamps,
 });
-
-export const todoLabels = pgTable(
-	"todo_labels",
-	{
-		todoId: text("todo_id")
-			.notNull()
-			.references(() => todos.id, { onDelete: "cascade" }),
-		labelId: text("label_id")
-			.notNull()
-			.references(() => labels.id, {
-				onDelete: "cascade",
-			}),
-		...timestamps,
-	},
-	(todoLabels) => ({
-		pk: primaryKey({ columns: [todoLabels.todoId, todoLabels.labelId] }),
-	})
-);
 
 // Relations
 export const userRelations = relations(user, ({ many }) => ({
@@ -251,6 +319,7 @@ export const workspacesRelations = relations(workspaces, ({ many, one }) => ({
 		fields: [workspaces.ownerId],
 		references: [user.id],
 	}),
+	labels: many(labels),
 }));
 
 export const workSpaceMembersRelations = relations(
@@ -286,6 +355,7 @@ export const projectsRelations = relations(projects, ({ many, one }) => ({
 		fields: [projects.workspaceId],
 		references: [workspaces.id],
 	}),
+	labels: many(projectLabels),
 }));
 
 export const projectMembersRelations = relations(projectMembers, ({ one }) => ({
@@ -313,6 +383,10 @@ export const tasksRelations = relations(tasks, ({ many, one }) => ({
 		relationName: "assignee",
 	}),
 	subtasks: many(subTasks),
+	status: one(taskStatuses, {
+		fields: [tasks.statusId],
+		references: [taskStatuses.id],
+	}),
 }));
 
 export const subTasksRelations = relations(subTasks, ({ one }) => ({
@@ -382,24 +456,61 @@ export const todoRelations = relations(todos, ({ one, many }) => ({
 		fields: [todos.userId],
 		references: [user.id],
 	}),
-	labels: many(todoLabels),
 }));
 
-export const todoLabelRelations = relations(todoLabels, ({ one }) => ({
-	todo: one(todos, {
-		fields: [todoLabels.todoId],
-		references: [todos.id],
+export const labelRelations = relations(labels, ({ many, one }) => ({
+	workspace: one(workspaces, {
+		fields: [labels.workspaceId],
+		references: [workspaces.id],
+	}),
+}));
+
+export const projectLabelsRelations = relations(projectLabels, ({ one }) => ({
+	project: one(projects, {
+		fields: [projectLabels.projectId],
+		references: [projects.id],
 	}),
 	label: one(labels, {
-		fields: [todoLabels.labelId],
+		fields: [projectLabels.labelId],
 		references: [labels.id],
 	}),
 }));
 
-export const labelRelations = relations(labels, ({ many, one }) => ({
+export const projectInvitationsRelations = relations(
+	projectInvitations,
+	({ one }) => ({
+		project: one(projects, {
+			fields: [projectInvitations.projectId],
+			references: [projects.id],
+		}),
+	})
+);
+
+export const taskLabelsRelations = relations(taskLabels, ({ one }) => ({
+	task: one(tasks, {
+		fields: [taskLabels.taskId],
+		references: [tasks.id],
+	}),
+	label: one(labels, {
+		fields: [taskLabels.labelId],
+		references: [labels.id],
+	}),
+}));
+
+export const projectsRolesRelations = relations(projectRoles, ({ one }) => ({
+	project: one(projects, {
+		fields: [projectRoles.projectId],
+		references: [projects.id],
+	}),
 	user: one(user, {
-		fields: [labels.userId],
+		fields: [projectRoles.userId],
 		references: [user.id],
 	}),
-	todos: many(todoLabels),
+}));
+
+export const taskStatusesRelations = relations(taskStatuses, ({ one }) => ({
+	project: one(projects, {
+		fields: [taskStatuses.projectId],
+		references: [projects.id],
+	}),
 }));

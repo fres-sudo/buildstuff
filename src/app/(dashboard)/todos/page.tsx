@@ -5,7 +5,6 @@ import { SearchParams } from "@/lib/data-table/types";
 import { searchParamsCache } from "@/lib/data-table/todos-cached-search";
 import { api } from "@/trpc/server";
 import { TodosTable } from "./_components/todo-table";
-import CreateTodoForm from "./_components/create-todo.form";
 import { CreateTodoSheet } from "./_components/create-todo-button";
 
 interface IndexPageProps {
@@ -37,19 +36,7 @@ export default async function IndexPage(props: IndexPageProps) {
 					</h2>
 					<CreateTodoSheet />
 				</div>
-
-				<React.Suspense
-					fallback={
-						<DataTableSkeleton
-							columnCount={6}
-							searchableColumnCount={1}
-							filterableColumnCount={2}
-							cellWidths={["10rem", "40rem", "12rem", "12rem", "8rem", "8rem"]}
-							shrinkZero
-						/>
-					}>
-					<TodosTable promises={promises} />
-				</React.Suspense>
+				<TodosTable promises={promises} />
 			</div>
 		</PageContainer>
 	);

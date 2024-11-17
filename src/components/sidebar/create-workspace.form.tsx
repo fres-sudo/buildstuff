@@ -16,19 +16,31 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import ColorRadio from "../ui/color-radio";
-
-type CreateWorkspaceSchema = z.infer<typeof createWorkspaceSchema>;
+import { newWorkspaceSchema } from "@/lib/db/schema.zod";
+import { NewWorkspace } from "@/lib/db/schema.types";
+import { api } from "@/trpc/react";
+import { create } from "domain";
+import { Loader } from "lucide-react";
+import { toast } from "sonner";
+import { getRandomIcon } from "../random-icons";
 
 const CreateWorkspaceForm = () => {
-	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const createWorkspaceMutation = api.workspaces.create.useMutation();
 
-	const createWorkspaceForm = useForm<CreateWorkspaceSchema>({
-		resolver: zodResolver(createWorkspaceSchema),
+	const createWorkspaceForm = useForm<NewWorkspace>({
+		resolver: zodResolver(newWorkspaceSchema),
 	});
 
-	async function onCreateWorkspace(data: CreateWorkspaceSchema) {
-		setIsLoading(true);
+	async function onCreateWorkspace(data: NewWorkspace) {
+		console.log("data", data);
+		const result = await createWorkspaceMutation.mutateAsync({
+			...data,
+			logo: getRandomIcon(),
+		});
+		if (!result) {
+			toast.error("Failed to create workspace");
+		}
+		createWorkspaceForm.reset();
 	}
 
 	return (
@@ -41,10 +53,10 @@ const CreateWorkspaceForm = () => {
 					name="name"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Email</FormLabel>
+							<FormLabel>Name</FormLabel>
 							<FormControl>
 								<Input
-									placeholder="email@example.com"
+									placeholder="Workspace name"
 									{...field}
 								/>
 							</FormControl>
@@ -63,6 +75,7 @@ const CreateWorkspaceForm = () => {
 									placeholder="Tell us a little bit about yout workspace"
 									className="resize-none"
 									{...field}
+									value={field.value ?? ""}
 								/>
 							</FormControl>
 							<FormMessage />
@@ -84,7 +97,17 @@ const CreateWorkspaceForm = () => {
 						</FormItem>
 					)}
 				/>
-				<Button className="mt-4 w-full">Create workspace</Button>
+				<Button className="mt-4 w-full">
+					{createWorkspaceMutation.isPending && (
+						<Loader
+							className="mr-2 size-4 animate-spin"
+							aria-hidden="true"
+						/>
+					)}
+					{createWorkspaceMutation.isPending
+						? "Creating Workspace"
+						: "CreateWorkspace"}
+				</Button>
 			</form>
 		</Form>
 	);

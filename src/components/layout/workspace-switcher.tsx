@@ -34,24 +34,12 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { api } from "@/trpc/react";
+import { useWorkspace } from "@/hooks/use-workspace";
 
-type Workspace = {
-	id: string;
-	name: string;
-	description?: string;
-};
-
-interface WorkspaceSwitcherProps {
-	workspaces: Workspace[];
-	currentWorkspace?: Workspace;
-	onWorkspaceChange?: (workspace: Workspace) => void;
-}
-
-export function WorkspaceSwitcher({
-	workspaces,
-	currentWorkspace,
-	onWorkspaceChange,
-}: WorkspaceSwitcherProps) {
+export function WorkspaceSwitcher1() {
+	const workspaces = api.workspaces.list.useQuery();
+	const { currentWorkspace, setCurrentWorkspace } = useWorkspace();
 	const [open, setOpen] = React.useState(false);
 	const [showNewWorkspaceDialog, setShowNewWorkspaceDialog] =
 		React.useState(false);
@@ -85,24 +73,24 @@ export function WorkspaceSwitcher({
 							<CommandInput placeholder="Search workspace..." />
 							<CommandEmpty>No workspace found.</CommandEmpty>
 							<CommandGroup heading="Workspaces">
-								{workspaces.map((workspace) => (
+								{workspaces.data?.map((workspace) => (
 									<CommandItem
-										key={workspace.id}
+										key={workspace?.id}
 										onSelect={() => {
-											onWorkspaceChange?.(workspace);
+											if (workspace) setCurrentWorkspace?.(workspace);
 											setOpen(false);
 										}}
 										className="text-sm">
 										<Avatar className="mr-2 h-5 w-5">
 											<AvatarFallback>
-												{workspace.name.charAt(0)}
+												{workspace?.name.charAt(0)}
 											</AvatarFallback>
 										</Avatar>
-										{workspace.name}
+										{workspace?.name}
 										<CheckIcon
 											className={cn(
 												"ml-auto h-4 w-4",
-												currentWorkspace?.id === workspace.id
+												currentWorkspace?.id === workspace?.id
 													? "opacity-100"
 													: "opacity-0"
 											)}

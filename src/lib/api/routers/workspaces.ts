@@ -18,40 +18,24 @@ import {
 	removeMemberSchema,
 	updateWorkspaceSchema,
 } from "@/lib/dtos/workspaces.dto";
+import { newWorkspaceSchema } from "@/lib/db/schema.zod";
 
 export const workspacesRouter = createTRPCRouter({
 	// **Create Workspace**
 	create: protectedProcedure
-		.input(createWorkspaceSchema)
+		.input(newWorkspaceSchema)
 		.mutation(async ({ ctx, input }) => {
-			const { name, description, color } = input;
 			const userId = ctx.session.user.id;
 
-			// Controlla se l'utente ha già una workspace con lo stesso nome
-			const existing = await ctx.db.query.workspaces.findFirst({
-				where: eq(workspaces.name, name),
-			});
-
-			if (existing) {
-				throw new TRPCError({
-					code: "CONFLICT",
-					message: "There is already a workspace with this name.",
-				});
-			}
-
-			// Crea la nuova workspace
 			const newWorkspace = await ctx.db
 				.insert(workspaces)
 				.values({
-					name,
-					description,
-					color,
+					...input,
 					ownerId: userId,
 				})
 				.returning()
 				.then(takeFirstOrThrow);
 
-			// Aggiungi l'owner come membro con ruolo 'admin'
 			await ctx.db.insert(workspaceMembers).values({
 				workspaceId: newWorkspace.id,
 				userId,
@@ -60,8 +44,6 @@ export const workspacesRouter = createTRPCRouter({
 
 			return newWorkspace;
 		}),
-
-	// **Get Workspace by ID**
 	getById: protectedProcedure
 		.input(z.object({ id: z.string() }))
 		.query(async ({ ctx, input }) => {
@@ -300,8 +282,6 @@ export const workspacesRouter = createTRPCRouter({
 
 			return { success: true };
 		}),
-
-	// **List Members of Workspace**
 	listMembers: protectedProcedure
 		.input(z.object({ workspaceId: z.string() }))
 		.query(async ({ ctx, input }) => {
@@ -335,11 +315,10 @@ export const workspacesRouter = createTRPCRouter({
 				role: member.role,
 			}));
 		}),
-	// Join workspace via invitation
 	joinViaInvitation: protectedProcedure
 		.input(invitationLinkSchema)
 		.mutation(async ({ ctx, input }) => {
-			const { token, role, email } = input;
+			const { token } = input;
 			const userId = ctx.session.user.id;
 
 			// Find the invitation
@@ -376,17 +355,17 @@ export const workspacesRouter = createTRPCRouter({
 			await ctx.db.insert(workspaceMembers).values({
 				workspaceId: invitation.workspaceId,
 				userId,
-				role,
+				role: invitation.role,
+				joinedAt: new Date(),
 			});
 
 			// Delete used invitation
-			await ctx.db
+			ctx.db
 				.delete(workspaceInvitations)
 				.where(eq(workspaceInvitations.token, token));
 
 			return { success: true };
 		}),
-	// **Invite Someone to Workspace**
 	invite: protectedProcedure
 		.input(
 			z.object({

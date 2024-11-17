@@ -13,14 +13,14 @@ export default function UserPropic() {
 	return (
 		<Link href="/account">
 			<Avatar className="bg-muted p-4 rounded-full">
-				{session.user.image ? (
+				{session?.user.image ? (
 					<AvatarImage
 						src={session.user.image}
 						alt={session.user.name}
 					/>
 				) : (
 					<AvatarFallback className="rounded-lg">
-						{session.user.name[0]}
+						{session?.user.name[0]}
 					</AvatarFallback>
 				)}
 			</Avatar>

@@ -1,9 +1,11 @@
 "use client";
 
 import {
+	CirclePlus,
 	Folder,
 	Forward,
 	MoreHorizontal,
+	Plus,
 	Trash2,
 	type LucideIcon,
 } from "lucide-react";
@@ -24,27 +26,33 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { Skeleton } from "../ui/skeleton";
+import { api } from "@/trpc/react";
+import { Button } from "../ui/button";
+import CreateProjectDialog from "@/app/(dashboard)/projects/_components/create-project-dialog";
 
-export function NavProjects({
-	projects,
-}: {
-	projects: {
-		name: string;
-		url: string;
-		icon: LucideIcon;
-	}[];
-}) {
+export function NavProjects() {
 	const { isMobile } = useSidebar();
+	const { currentWorkspace } = useWorkspace();
+	if (!currentWorkspace) return <LoadingSkeleton></LoadingSkeleton>;
+	const projects = api.projects.list.useQuery({
+		workspaceId: currentWorkspace?.id,
+	});
 
 	return (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-			<SidebarGroupLabel>Projects</SidebarGroupLabel>
+			<SidebarGroupLabel className="flex justify-between">
+				Projects
+				<CreateProjectDialog />
+			</SidebarGroupLabel>
 			<SidebarMenu>
-				{projects.map((item) => (
+				{projects.isLoading && <LoadingSkeleton />}
+				{projects.data?.map((item) => (
 					<SidebarMenuItem key={item.name}>
 						<SidebarMenuButton asChild>
-							<a href={item.url}>
-								<item.icon />
+							<a href={`/projects/${item.id}`}>
+								{/* <item.icon /> */}
 								<span>{item.name}</span>
 							</a>
 						</SidebarMenuButton>
@@ -76,13 +84,22 @@ export function NavProjects({
 						</DropdownMenu>
 					</SidebarMenuItem>
 				))}
-				<SidebarMenuItem>
+				{/* <SidebarMenuItem>
 					<SidebarMenuButton className="text-sidebar-foreground/70">
 						<MoreHorizontal className="text-sidebar-foreground/70" />
 						<span>More</span>
 					</SidebarMenuButton>
-				</SidebarMenuItem>
+				</SidebarMenuItem> */}
 			</SidebarMenu>
 		</SidebarGroup>
 	);
 }
+
+const LoadingSkeleton = () => (
+	<div className="flex mx-2 flex-col space-y-2">
+		<Skeleton className="h-4 w-full" />
+		<Skeleton className="h-4 w-full" />
+		<Skeleton className="h-4 w-full" />
+		<Skeleton className="h-4 w-full" />
+	</div>
+);

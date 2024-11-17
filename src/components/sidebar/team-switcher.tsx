@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, Plus } from "lucide-react";
-
+import { ChevronsUpDown } from "lucide-react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -19,26 +18,25 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { BuildStuffIcon, BuildStuffLogo } from "../logo";
+import Image from "next/image";
 import { Separator } from "../ui/separator";
 import WorkSpaceDialog from "./workspace-dialog";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { api } from "@/trpc/react";
+import { getIcon } from "../random-icons";
 
-export function WorkSpaceSwitcher({
-	workSpaces,
-}: {
-	workSpaces: {
-		name: string;
-		logo: React.ElementType;
-		plan: string;
-	}[];
-}) {
+export function WorkSpaceSwitcher() {
 	const { isMobile } = useSidebar();
-	const [activeWorkSpace, setActiveWorkSpace] = React.useState(workSpaces[0]);
+
+	const workspaces = api.workspaces.list.useQuery();
+	const { currentWorkspace, setCurrentWorkspace } = useWorkspace();
 
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
-				<div className="my-2">
-					{isMobile ? <BuildStuffIcon /> : <BuildStuffLogo />}
+				<div className="my-2 data-[state=open]:my-0 flex items-center">
+					<BuildStuffIcon className="data-[state=open]:hidden" />
+					<BuildStuffLogo className="hidden data-[state=open]:flex" />
 				</div>
 			</SidebarMenuItem>
 			<Separator />
@@ -49,16 +47,14 @@ export function WorkSpaceSwitcher({
 							size="lg"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
 							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
-								{activeWorkSpace && (
-									<activeWorkSpace.logo className="size-4 text-black" />
-								)}
+								{currentWorkspace?.logo && <currentWorkspace.logo />}
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight ">
 								<span className="truncate font-semibold">
-									{activeWorkSpace && activeWorkSpace.name}
+									{currentWorkspace && currentWorkspace.name}
 								</span>
 								<span className="truncate text-xs">
-									{activeWorkSpace && activeWorkSpace.plan}
+									{currentWorkspace && currentWorkspace.description}
 								</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />
@@ -72,15 +68,15 @@ export function WorkSpaceSwitcher({
 						<DropdownMenuLabel className="text-xs text-muted-foreground">
 							Work Spaces
 						</DropdownMenuLabel>
-						{workSpaces.map((workSpace, index) => (
+						{workspaces.data?.map((workSpace, index) => (
 							<DropdownMenuItem
-								key={workSpace.name}
-								onClick={() => setActiveWorkSpace(workSpace)}
+								key={workSpace?.name}
+								onClick={() => {
+									if (workSpace) setCurrentWorkspace(workSpace);
+								}}
 								className="gap-2 p-2">
-								<div className="flex size-6 items-center justify-center rounded-sm border">
-									<workSpace.logo className="size-4 shrink-0" />
-								</div>
-								{workSpace.name}
+								<div className="flex size-6 items-center justify-center rounded-sm border"></div>
+								{workSpace?.name}
 								<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
 							</DropdownMenuItem>
 						))}

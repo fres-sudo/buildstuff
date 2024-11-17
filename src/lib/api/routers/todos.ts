@@ -12,10 +12,9 @@ import {
 	inArray,
 	lte,
 } from "drizzle-orm";
-import { todoLabels, todos } from "@/lib/db/schema";
+import { todos } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
 import { takeFirst } from "@/lib/utils";
-import { createTodoSchema, updateTodoSchema } from "@/lib/dtos/todos.dto";
 import { newTodoSchema } from "@/lib/db/schema.zod";
 import {
 	getTodosSchema,
@@ -25,7 +24,7 @@ import { Todo } from "@/lib/db/schema.types";
 
 export const todosRouter = createTRPCRouter({
 	create: protectedProcedure
-		.input(createTodoSchema)
+		.input(newTodoSchema)
 		.mutation(async ({ ctx, input }) => {
 			const newTodo = await ctx.db
 				.insert(todos)
@@ -99,16 +98,6 @@ export const todosRouter = createTRPCRouter({
 
 			const pageCount = Math.ceil(total / input.perPage);
 			return { data, pageCount };
-		}),
-	getLabels: protectedProcedure
-		.input(z.object({ todoId: z.string() }))
-		.query(async ({ ctx, input }) => {
-			const labels = await ctx.db.query.todoLabels.findMany({
-				where: eq(todoLabels.todoId, input.todoId),
-				with: { label: true },
-			});
-
-			return labels.map((label) => label.label);
 		}),
 	getTodosStatusCounts: protectedProcedure.query(async ({ ctx }) => {
 		return await ctx.db
