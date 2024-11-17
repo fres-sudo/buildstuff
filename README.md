@@ -79,7 +79,7 @@ Access the app: Open [http://localhost:3000](http://localhost:3000) in your brow
 
 For detailed setup instructions, API documentation, and usage guides, visit the [**BuildStuff Documentation**]().
 
-##🤝 Contributing
+## 🤝 Contributing
 
 We welcome contributions from the community! Whether you want to fix a bug, suggest a feature, or improve the docs, we'd love your help.
 
@@ -103,7 +103,7 @@ git commit -m "Add your feature or fix"
     git push origin feature/your-feature-name
 ```
 
-5.Create a [**pull request**](https://github.com/fres-sudo/buildstuff/pulls)
+5. Create a [**pull request**](https://github.com/fres-sudo/buildstuff/pulls)
 
 Check out our [Contributing Guide](https://github.com/fres-sudo/buildstuff/blob/main/CONTRIBUTE.md) for more details.
 
