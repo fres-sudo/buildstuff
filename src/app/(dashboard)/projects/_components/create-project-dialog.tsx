@@ -5,7 +5,6 @@ import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
-	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
@@ -13,7 +12,6 @@ import {
 import {
 	Form,
 	FormControl,
-	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -21,27 +19,34 @@ import {
 } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { NewProject } from "@/lib/db/schema.types";
 import { newProjectSchema } from "@/lib/db/schema.zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, Plus } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Label as LabelType } from "@/lib/db/schema.types";
 import { api } from "@/trpc/react";
 import { z } from "zod";
 import { toast } from "sonner";
 import MultipleEmailFormField from "@/components/multiple-email-form-field";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { Separator } from "@radix-ui/react-separator";
+import SelectMemberDropdown from "@/components/select-member-dropdowx";
 
 const invitationFormSchema = z.object({ token: z.string() });
 type InvitationFormType = z.infer<typeof invitationFormSchema>;
 
-const CreateProjectDialog = () => {
+const CreateProjectDialog = ({
+	onProjectCreated,
+}: {
+	onProjectCreated: (project: NewProject) => void;
+}) => {
 	const createProjectMutation = api.projects.create.useMutation();
 	const addLabelsMutation = api.projects.addLabels.useMutation();
 	const joinProjectMutation = api.projects.join.useMutation();
+	const inviteGeustsMutatoin = api.projects.inviteGuests.useMutation();
+	const inviteMembersMutation = api.projects.inviteMembers.useMutation();
 
 	const createProjectForm = useForm<NewProject>({
 		resolver: zodResolver(newProjectSchema),
@@ -50,35 +55,59 @@ const CreateProjectDialog = () => {
 		resolver: zodResolver(invitationFormSchema),
 	});
 
+	const { currentWorkspace } = useWorkspace();
 	const [labels, setLabels] = useState<LabelType[]>([]);
 	const [emails, setEmails] = useState<string[]>([]);
+	const [members, setMember] = useState<string[]>([]);
+	const [open, setOpen] = useState(false);
 
-	async function onCreateWorkspace(data: NewProject) {
-		const project = await createProjectMutation.mutateAsync(data);
-		if (!project) {
+	async function onCreateProject(data: NewProject) {
+		const project = await createProjectMutation.mutateAsync({
+			...data,
+			workspaceId: currentWorkspace?.id,
+		});
+		if (!project || !project.id) {
 			toast.error("Failed to create project");
+			setOpen(false);
+			createProjectForm.reset();
+			return;
 		}
-		if (labels.length > 0) {
-			await addLabelsMutation.mutateAsync(labels);
-		}
+		await Promise.all([
+			labels.length > 0 && addLabelsMutation.mutateAsync(labels),
+			emails.length > 0 &&
+				inviteGeustsMutatoin.mutateAsync({
+					projectId: project.id,
+					emails,
+				}),
+			members.length > 0 &&
+				inviteMembersMutation.mutateAsync({
+					projectId: project.id,
+					memberIds: members,
+				}),
+		]);
+		onProjectCreated(project);
+		setOpen(false);
+		createProjectForm.reset();
 	}
 
-	async function onJoinWorkspace(data: InvitationFormType) {
+	async function onJoinProject(data: InvitationFormType) {
 		await joinProjectMutation.mutateAsync({
 			token: data.token,
 		});
 	}
 
 	return (
-		<Dialog>
-			<DialogTrigger asChild>
-				<Button
-					className="p-1 m-0 rounded-full h-6 w-6"
-					variant={"outline"}
-					onClick={() => {}}>
-					<Plus className="h-6 w-6 text-muted-foreground mx-1" />
-				</Button>
-			</DialogTrigger>
+		<Dialog
+			open={open}
+			onOpenChange={setOpen}>
+			<Button
+				className="p-1 m-0 rounded-full h-6 w-6"
+				variant={"outline"}
+				onClick={() => {
+					setOpen(true);
+				}}>
+				<Plus className="h-6 w-6 text-muted-foreground mx-1" />
+			</Button>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>Create Project</DialogTitle>
@@ -94,8 +123,8 @@ const CreateProjectDialog = () => {
 					<TabsContent value="create">
 						<Form {...createProjectForm}>
 							<form
-								onSubmit={createProjectForm.handleSubmit(onCreateWorkspace)}
-								className="space-y-2 w-full">
+								onSubmit={createProjectForm.handleSubmit(onCreateProject)}
+								className="w-full space-y-2 s">
 								<FormField
 									control={createProjectForm.control}
 									name="name"
@@ -116,14 +145,15 @@ const CreateProjectDialog = () => {
 								<SelectOrCreateLabel
 									onLabelSelect={(labels) => setLabels(labels)}
 								/>
-								<FormLabel className="">Invite People</FormLabel>
+								<FormLabel>Add Members</FormLabel>
+								<SelectMemberDropdown />
+								<FormLabel className="mt-4">Invite Guests</FormLabel>
 								<MultipleEmailFormField
 									onChangeEmails={(emails) => setEmails(emails)}
 								/>
-
 								<Button
 									type="submit"
-									className="w-full">
+									className="w-full mt-4">
 									{createProjectMutation.isPending && (
 										<Loader className="mr-2 h-4 w-4 animate-spin" />
 									)}
@@ -135,7 +165,7 @@ const CreateProjectDialog = () => {
 					<TabsContent value="join">
 						<Form {...invitationForm}>
 							<form
-								onSubmit={invitationForm.handleSubmit(onJoinWorkspace)}
+								onSubmit={invitationForm.handleSubmit(onJoinProject)}
 								className="space-y-4 mt-4">
 								<FormField
 									control={invitationForm.control}
@@ -156,7 +186,7 @@ const CreateProjectDialog = () => {
 								/>
 								<Button
 									type="submit"
-									className="w-full">
+									className="w-full mt-2">
 									{joinProjectMutation.isPending && (
 										<Loader className="mr-2 h-4 w-4 animate-spin" />
 									)}

@@ -7,7 +7,6 @@ import {
 	projectMembers,
 	projectRoles,
 	projects,
-	todos,
 	user,
 } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
@@ -15,21 +14,22 @@ import { takeFirst } from "@/lib/utils";
 import {
 	newLabelSchema,
 	newProjectLabelSchema,
+	newProjectSchema,
 	newTodoSchema,
 } from "@/lib/db/schema.zod";
-import { Todo } from "@/lib/db/schema.types";
 import { eq } from "drizzle-orm";
+import { randomBytes } from "crypto";
+import { hash } from "bcryptjs";
 
 export const projectsRouter = createTRPCRouter({
 	create: protectedProcedure
-		.input(newLabelSchema)
+		.input(newProjectSchema)
 		.mutation(async ({ ctx, input }) => {
-			const newLabel = await ctx.db
-				.insert(labels)
+			return await ctx.db
+				.insert(projects)
 				.values(input)
 				.returning()
 				.then(takeFirst);
-			return newLabel;
 		}),
 	list: protectedProcedure
 		.input(
@@ -42,6 +42,22 @@ export const projectsRouter = createTRPCRouter({
 				.select()
 				.from(projects)
 				.where(eq(projects.workspaceId, input.workspaceId));
+		}),
+	get: protectedProcedure
+		.input(z.object({ projectId: z.string() }))
+		.query(async ({ ctx, input }) => {
+			return await ctx.db.query.projects.findFirst({
+				where: eq(projects.id, input.projectId),
+				with: {
+					labels: true,
+					members: {
+						with: {
+							user: true,
+						},
+					},
+					tasks: true,
+				},
+			});
 		}),
 	getLabels: protectedProcedure
 		.input(z.object({ projectId: z.string() }))
@@ -62,6 +78,81 @@ export const projectsRouter = createTRPCRouter({
 				.values(input)
 				.returning()
 				.then(takeFirst);
+		}),
+	inviteMembers: protectedProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				memberIds: z.array(z.string()),
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			return await Promise.all(
+				input.memberIds.map(async (memberId) => {
+					const projectRole = await ctx.db
+						.insert(projectRoles)
+						.values({
+							projectId: input.projectId,
+							userId: memberId,
+							role: "member",
+						})
+						.returning()
+						.then(takeFirst);
+					if (!projectRole) {
+						throw new TRPCError({
+							code: "INTERNAL_SERVER_ERROR",
+							message: "Failed to add member",
+						});
+					}
+					//TODO: send the message to the app inbox
+					return ctx.db
+						.insert(projectMembers)
+						.values({
+							projectId: input.projectId,
+							userId: memberId,
+							roleId: projectRole.id,
+						})
+						.returning()
+						.then(takeFirst);
+				})
+			);
+		}),
+	inviteGuests: protectedProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				emails: z.array(z.string()),
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const project = await ctx.db.query.projects.findFirst({
+				where: eq(projects.id, input.projectId),
+			});
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+			const invitations = await Promise.all(
+				input.emails.map(async (email) => {
+					const token = randomBytes(32).toString("hex");
+					const hashedToken = await hash(token, 10);
+					//TODO: send email to the user
+					ctx.db
+						.insert(projectInvitations)
+						.values({
+							email,
+							projectId: project.id,
+							role: "guest",
+							token: hashedToken,
+							expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+						})
+						.returning()
+						.then(takeFirst);
+				})
+			);
+			return invitations;
 		}),
 	join: protectedProcedure
 		.input(z.object({ token: z.string() }))

@@ -366,6 +366,18 @@ export const workspacesRouter = createTRPCRouter({
 
 			return { success: true };
 		}),
+	getMembers: protectedProcedure
+		.input(
+			z.object({
+				workspaceId: z.string(),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			return await ctx.db.query.workspaceMembers.findMany({
+				where: eq(workspaceMembers.workspaceId, input.workspaceId),
+				with: { user: true },
+			});
+		}),
 	invite: protectedProcedure
 		.input(
 			z.object({
@@ -392,6 +404,8 @@ export const workspacesRouter = createTRPCRouter({
 			// Generate unique token
 			const token = crypto.randomBytes(32).toString("hex");
 			const hashedToken = await bcrypt.hash(token, 10);
+
+			//TODO: add email sending
 
 			// Create invitation with 7 days expiry
 			await ctx.db.insert(workspaceInvitations).values({

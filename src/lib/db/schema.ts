@@ -6,8 +6,9 @@ import {
 	text,
 	boolean,
 	varchar,
+	pgSequence,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { timestamps } from "./utils";
 
@@ -99,6 +100,9 @@ export const projects = pgTable("projects", {
 		.primaryKey()
 		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
+	code: text("code")
+		.default(sql`'P-' || LPAD(nextval('project_sequence')::text, 5, '0')`)
+		.notNull(),
 	workspaceId: text("workspace_id").references(() => workspaces.id, {
 		onDelete: "cascade",
 	}),
@@ -116,6 +120,9 @@ export const projectLabels = pgTable("project_labels", {
 		onDelete: "cascade",
 	}),
 	...timestamps,
+	code: text("code")
+		.default(sql`'TD-' || LPAD(nextval('todo_sequence')::text, 5, '0')`)
+		.notNull(),
 });
 
 export const projectMembers = pgTable("project_members", {
@@ -162,6 +169,9 @@ export const tasks = pgTable("tasks", {
 		.primaryKey()
 		.$defaultFn(() => createId()),
 	title: text("title").notNull(),
+	code: text("code")
+		.default(sql`'T-' || LPAD(nextval('task_sequence')::text, 5, '0')`)
+		.notNull(),
 	description: text("description"),
 	projectId: text("project_id").references(() => projects.id, {
 		onDelete: "cascade",
@@ -188,6 +198,9 @@ export const subTasks = pgTable("sub_tasks", {
 	description: text("description"),
 	parentTaskId: text("task_id").references(() => tasks.id, {
 		onDelete: "cascade",
+	}),
+	status: text("status", {
+		enum: ["todo", "in-progress", "done", "canceled"],
 	}),
 	...timestamps,
 });
@@ -269,7 +282,7 @@ export const todos = pgTable("todos", {
 		.primaryKey()
 		.$defaultFn(() => createId()),
 	code: text("code")
-		.default(`'TD' || LPAD(nextval('patient_code_seq')::text, 5, '0')`)
+		.default(sql`'TD-' || LPAD(nextval('todo_sequence')::text, 5, '0')`)
 		.notNull(),
 	title: text("title"),
 	status: text("status", {
@@ -299,7 +312,10 @@ export const labels = pgTable("labels", {
 	...timestamps,
 });
 
-// Relations
+/** /////////////////////////////////////
+ * Relations
+ */ //////////////////////////////////////
+
 export const userRelations = relations(user, ({ many }) => ({
 	account: many(account),
 	sessions: many(session),
@@ -514,3 +530,25 @@ export const taskStatusesRelations = relations(taskStatuses, ({ one }) => ({
 		references: [projects.id],
 	}),
 }));
+
+/** /////////////////////////////////////
+ * Sequences
+ */ //////////////////////////////////////
+
+export const todoSequece = pgSequence("todo_sequence", {
+	startWith: 1,
+	maxValue: 10000,
+	cache: 10,
+});
+
+export const projectSequence = pgSequence("project_sequence", {
+	startWith: 1,
+	maxValue: 10000,
+	cache: 10,
+});
+
+export const taskSequence = pgSequence("task_sequence", {
+	startWith: 1,
+	maxValue: 10000,
+	cache: 10,
+});

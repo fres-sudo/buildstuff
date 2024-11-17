@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Todo } from "@/lib/db/schema.types";
-import { todoLabels, todos } from "@/lib/db/schema";
+import { todos } from "@/lib/db/schema";
 import { api } from "@/trpc/react";
 import { priorityItems } from "./create-todo.form";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,34 +86,10 @@ export function getColumns({
 				/>
 			),
 			cell: async ({ row }) => {
-				const labelQuery = api.todos.getLabels.useQuery({
-					todoId: row.id,
-				});
-				const labels = labelQuery.data;
-				if (labelQuery.error) {
-					toast.error(getErrorMessage(labelQuery.error));
-				}
-				if (labelQuery.isLoading) {
-					return (
-						<Badge variant="outline">
-							<Skeleton className="" />
-						</Badge>
-					);
-				}
 				return (
-					<div className="flex space-x-2">
-						{labels &&
-							labels.map((label) => (
-								<Badge
-									variant="outline"
-									style={{ backgroundColor: label.color ?? "#0000ff" }}>
-									{label.name}
-								</Badge>
-							))}
-						<span className="max-w-[31.25rem] truncate font-medium">
-							{row.getValue("title")}
-						</span>
-					</div>
+					<span className="max-w-[31.25rem] truncate font-medium">
+						{row.getValue("title")}
+					</span>
 				);
 			},
 		},

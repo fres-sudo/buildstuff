@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Plus, Trash2 } from "lucide-react";
@@ -20,7 +20,6 @@ const MultipleEmailFormField: React.FC<MultipleEmailFormFieldProps> = ({
 		setEmails(newEmails);
 		onChangeEmails(newEmails);
 	};
-
 	const handleAddEmailField = () => {
 		setEmails([...emails, ""]);
 	};
@@ -48,6 +47,7 @@ const MultipleEmailFormField: React.FC<MultipleEmailFormFieldProps> = ({
 						<Button
 							variant={"secondary"}
 							className="w-10"
+							type="button"
 							onClick={() => handleRemoveEmailField(index)}>
 							<Trash2 />
 						</Button>
@@ -62,7 +62,8 @@ const MultipleEmailFormField: React.FC<MultipleEmailFormFieldProps> = ({
 			</FormDescription>
 			<Button
 				variant={"outline"}
-				className="mt-2 "
+				className=""
+				type="button"
 				onClick={handleAddEmailField}>
 				Add Email
 				<Plus className="h-4 w-4" />

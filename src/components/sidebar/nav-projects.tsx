@@ -44,7 +44,7 @@ export function NavProjects() {
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 			<SidebarGroupLabel className="flex justify-between">
 				Projects
-				<CreateProjectDialog />
+				<CreateProjectDialog onProjectCreated={(_) => projects.refetch()} />
 			</SidebarGroupLabel>
 			<SidebarMenu>
 				{projects.isLoading && <LoadingSkeleton />}

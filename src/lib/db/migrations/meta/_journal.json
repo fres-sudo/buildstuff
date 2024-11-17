@@ -78,6 +78,34 @@
       "when": 1731800032111,
       "tag": "0010_tan_imperial_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1731832284067,
+      "tag": "0011_far_iceman",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1731832765087,
+      "tag": "0012_lean_stark_industries",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1731832811744,
+      "tag": "0013_unknown_stryfe",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1731836404102,
+      "tag": "0014_wild_trauma",
+      "breakpoints": true
     }
   ]
 }
