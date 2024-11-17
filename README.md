@@ -39,13 +39,13 @@ Follow these steps to set up BuildStuff locally.
     cd buildstuff
    ```
 
-2.**Install dependencies:**
+2. **Install dependencies:**
 
 ```bash
 npm install
 ```
 
-3.**Set up environment variables,** copy the example environment file and update it with your configuration:
+3. **Set up environment variables,** copy the example environment file and update it with your configuration:
 
 ```bash
 cp .env.example .env
@@ -53,13 +53,13 @@ cp .env.example .env
 
 Update the `.env` file with your PostgreSQL credentials, OAuth keys, and any other necessary configurations.
 
-4.**Set up the database,** initialize the database with Drizzle ORM
+4. **Set up the database,** initialize the database with Drizzle ORM
 
 ```bash
 npx drizzle-kit migrate:latest
 ```
 
-5.**Start the development server:**
+5. **Start the development server:**
 
 ```bash
     npm run dev
@@ -69,11 +69,11 @@ Access the app: Open [http://localhost:3000](http://localhost:3000) in your brow
 
 ## 🛠️ Tech Stack
 
-    Frontend: Next.js, Tailwind CSS
-    Backend: Drizzle ORM, PostgreSQL
-    Authentication: Email, Google, GitHub OAuth
-    Deployment: Vercel, Docker (optional)
-    Markdown Editor: Built-in support with preview
+- Frontend: [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/)
+- Backend: [Drizzle ORM](https://orm.drizzle.team/), [PostgreSQL](https://www.postgresql.org/)
+- Authentication: [Better Auth](https://www.better-auth.com/)
+- Deployment: [Vercel](https://vercel.com/), [Docker](https://www.docker.com/) (optional)
+- Markdown Editor: [Tip Tap](https://tiptap.dev/product/editor)
 
 ## 📚 Documentation
 
@@ -83,21 +83,21 @@ For detailed setup instructions, API documentation, and usage guides, visit the 
 
 We welcome contributions from the community! Whether you want to fix a bug, suggest a feature, or improve the docs, we'd love your help.
 
-1.Fork the **repository**
+1. Fork the **repository**
 
-2.Create a new **branch**:
+2. Create a new **branch**:
 
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
-3.Make your changes and **commit**:
+3. Make your changes and **commit**:
 
 ```bash
 git commit -m "Add your feature or fix"
 ```
 
-4.**Push** your changes:
+4. **Push** your changes:
 
 ```bash
     git push origin feature/your-feature-name
