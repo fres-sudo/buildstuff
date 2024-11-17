@@ -1,6 +1,6 @@
 ![Preview](public/buildstuff-thubnail.png)
 
-# 🛠️ BuildStuff
+# ✳️ BuildStuff
 
 **BuildStuff** is a lightweight, open-source project management tool designed for solo developers, freelancers, and small teams who want a simple, no-fuss way to track tasks, manage projects, and log work hours — without the unnecessary bloat.
 
