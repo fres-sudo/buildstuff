@@ -15,7 +15,6 @@ import {
 	attachments,
 	todos,
 	labels,
-	todoLabels,
 } from "./schema";
 
 export type User = typeof user.$inferSelect;
@@ -65,6 +64,3 @@ export type NewTodo = typeof todos.$inferInsert;
 
 export type Label = typeof labels.$inferSelect;
 export type NewLabel = typeof labels.$inferInsert;
-
-export type TodoLabel = typeof todoLabels.$inferSelect;
-export type NewTodoLabel = typeof todoLabels.$inferInsert;

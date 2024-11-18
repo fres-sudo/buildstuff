@@ -18,6 +18,7 @@ import {
 	todos,
 	labels,
 	projectLabels,
+	projectInvitations,
 } from "./schema";
 // User schemas
 export const userSchema = createSelectSchema(user);
@@ -52,6 +53,11 @@ export const newWorkspaceInvitationSchema =
 // Project schemas
 export const projectSchema = createSelectSchema(projects);
 export const newProjectSchema = createInsertSchema(projects);
+
+// Project invitations
+export const projectInvitationSchema = createSelectSchema(projectInvitations);
+export const newProjectInvitationSchema =
+	createInsertSchema(projectInvitations);
 
 // ProjectMember schemas
 export const projectMemberSchema = createSelectSchema(projectMembers);

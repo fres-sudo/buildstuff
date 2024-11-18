@@ -145,8 +145,11 @@ const CreateProjectDialog = ({
 								<SelectOrCreateLabel
 									onLabelSelect={(labels) => setLabels(labels)}
 								/>
-								<FormLabel>Add Members</FormLabel>
-								<SelectMemberDropdown />
+								<SelectMemberDropdown
+									onMembersChange={(members) =>
+										setMember(members.map((m) => m.id))
+									}
+								/>
 								<FormLabel className="mt-4">Invite Guests</FormLabel>
 								<MultipleEmailFormField
 									onChangeEmails={(emails) => setEmails(emails)}

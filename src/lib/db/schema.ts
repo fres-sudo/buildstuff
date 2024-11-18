@@ -113,27 +113,34 @@ export const projectLabels = pgTable("project_labels", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => createId()),
-	projectId: text("project_id").references(() => projects.id, {
-		onDelete: "cascade",
-	}),
-	labelId: text("label_id").references(() => labels.id, {
-		onDelete: "cascade",
-	}),
-	...timestamps,
-	code: text("code")
-		.default(sql`'TD-' || LPAD(nextval('todo_sequence')::text, 5, '0')`)
+	projectId: text("project_id")
+		.references(() => projects.id, {
+			onDelete: "cascade",
+		})
 		.notNull(),
+	labelId: text("label_id")
+		.references(() => labels.id, {
+			onDelete: "cascade",
+		})
+		.notNull(),
+	...timestamps,
 });
 
 export const projectMembers = pgTable("project_members", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => createId()),
-	projectId: text("project_id").references(() => projects.id, {
-		onDelete: "cascade",
-	}),
-	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
-	roleId: text("role_id").references(() => projectRoles.id),
+	projectId: text("project_id")
+		.references(() => projects.id, {
+			onDelete: "cascade",
+		})
+		.notNull(),
+	userId: text("user_id")
+		.references(() => user.id, { onDelete: "cascade" })
+		.notNull(),
+	roleId: text("role_id")
+		.references(() => projectRoles.id)
+		.notNull(),
 	joinedAt: timestamp("joined_at").defaultNow(),
 });
 
@@ -141,10 +148,14 @@ export const projectRoles = pgTable("project_roles", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => createId()),
-	projectId: text("project_id").references(() => projects.id, {
-		onDelete: "cascade",
-	}),
-	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+	projectId: text("project_id")
+		.references(() => projects.id, {
+			onDelete: "cascade",
+		})
+		.notNull(),
+	userId: text("user_id")
+		.references(() => user.id, { onDelete: "cascade" })
+		.notNull(),
 	role: text("role").notNull(),
 });
 
@@ -152,14 +163,13 @@ export const projectInvitations = pgTable("project_invitations", {
 	id: text("id")
 		.primaryKey()
 		.$defaultFn(() => createId()),
-	projectId: text("project_id").references(() => projects.id, {
-		onDelete: "cascade",
-	}),
+	projectId: text("project_id")
+		.references(() => projects.id, {
+			onDelete: "cascade",
+		})
+		.notNull(),
 	email: text("email").notNull(),
 	token: text("token").unique().notNull(),
-	role: text("role", { enum: ["admin", "member", "guest"] })
-		.notNull()
-		.default("guest"),
 	expiresAt: timestamp("expires_at").notNull(),
 	...timestamps,
 });
@@ -312,6 +322,22 @@ export const labels = pgTable("labels", {
 	...timestamps,
 });
 
+export const userInbox = pgTable("user_inbox", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => createId()),
+	userId: text("user_id")
+		.references(() => user.id, { onDelete: "cascade" })
+		.notNull(),
+	type: text("type", {
+		enum: ["notification", "message", "invitation"],
+	}).notNull(),
+	action: text("action"),
+	tile: text("title").notNull(),
+	message: text("message").notNull(),
+	...timestamps,
+});
+
 /** /////////////////////////////////////
  * Relations
  */ //////////////////////////////////////
@@ -325,6 +351,8 @@ export const userRelations = relations(user, ({ many }) => ({
 	timeEntries: many(timeEntries),
 	notes: many(notes),
 	attachments: many(attachments),
+	todos: many(todos),
+	inbox: many(userInbox),
 }));
 
 export const workspacesRelations = relations(workspaces, ({ many, one }) => ({
@@ -528,6 +556,13 @@ export const taskStatusesRelations = relations(taskStatuses, ({ one }) => ({
 	project: one(projects, {
 		fields: [taskStatuses.projectId],
 		references: [projects.id],
+	}),
+}));
+
+export const inboxRelations = relations(userInbox, ({ one }) => ({
+	user: one(user, {
+		fields: [userInbox.userId],
+		references: [user.id],
 	}),
 }));
 

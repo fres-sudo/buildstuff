@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig = {
 	transpilePackages: ["lucide-react"],
+	fastRefresh: true,
 	async headers() {
 		return [
 			{

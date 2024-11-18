@@ -16,6 +16,7 @@ import {
 	newProjectLabelSchema,
 	newProjectSchema,
 	newTodoSchema,
+	projectInvitationSchema,
 } from "@/lib/db/schema.zod";
 import { eq } from "drizzle-orm";
 import { randomBytes } from "crypto";
@@ -138,13 +139,13 @@ export const projectsRouter = createTRPCRouter({
 				input.emails.map(async (email) => {
 					const token = randomBytes(32).toString("hex");
 					const hashedToken = await hash(token, 10);
+
 					//TODO: send email to the user
 					ctx.db
 						.insert(projectInvitations)
 						.values({
 							email,
 							projectId: project.id,
-							role: "guest",
 							token: hashedToken,
 							expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
 						})
@@ -155,6 +156,41 @@ export const projectsRouter = createTRPCRouter({
 			return invitations;
 		}),
 	join: protectedProcedure
+		.input(projectInvitationSchema)
+		.mutation(async ({ ctx, input }) => {
+			const project = await ctx.db.query.user.findFirst({
+				where: eq(user.email, input.email),
+			});
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+
+			const projectRole = await ctx.db
+				.update(projectRoles)
+				.set({
+					userId: input.id,
+					projectId: project.id,
+					role: "member",
+				})
+				.returning()
+				.then(takeFirst);
+
+			if (!projectRole) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to join project",
+				});
+			}
+			await ctx.db.update(projectMembers).set({
+				userId: ctx.session?.user.id,
+				projectId: project.id,
+				roleId: projectRole.id,
+			});
+		}),
+	joinViaEmail: protectedProcedure
 		.input(z.object({ token: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			const invitation = await ctx.db.query.projectInvitations.findFirst({
@@ -192,7 +228,7 @@ export const projectsRouter = createTRPCRouter({
 				.set({
 					userId: invitatedUser.id,
 					projectId: project.id,
-					role: "member",
+					role: "guest",
 				})
 				.returning()
 				.then(takeFirst);

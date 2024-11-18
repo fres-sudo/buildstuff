@@ -1,19 +1,34 @@
 import { Label } from "@/components/ui/label";
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectLabel,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+	CommandSeparator,
+} from "@/components/ui/command";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { cn } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { Skeleton } from "./ui/skeleton";
 import { useState } from "react";
-import MultipleSelector from "./ui/multiselect";
+import MultipleSelector, { Option } from "./ui/multiselect";
+import { Button } from "./ui/button";
+import {
+	NewProjectMember,
+	NewWorkspaceMember,
+	User,
+	WorkspaceMember,
+} from "@/lib/db/schema.types";
+import { Check, ChevronDown, X } from "lucide-react";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const Square = ({
 	className,
@@ -36,72 +51,119 @@ const Square = ({
 export default function SelectMemberDropdown({
 	onMembersChange,
 }: {
-	onMembersChange: (members: string[]) => void;
+	onMembersChange: (members: User[]) => void;
 }) {
 	const { currentWorkspace } = useWorkspace();
-	const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+	const [selectedMembers, setSelectedMembers] = useState<User[]>([]);
 	if (!currentWorkspace) return null;
 
 	const query = api.workspaces.getMembers.useQuery({
 		workspaceId: currentWorkspace.id,
 	});
 
-	const handleSelectChange = (value: string) => {
-		let updatedMembers;
-		if (selectedMembers.includes(value)) {
-			updatedMembers = selectedMembers.filter((member) => member !== value);
-		} else {
-			updatedMembers = [...selectedMembers, value];
-		}
-		setSelectedMembers(updatedMembers);
-		onMembersChange(updatedMembers);
-	};
+	const [open, setOpen] = useState<boolean>(false);
 
 	return (
 		<div className="space-y-2">
-			<Select
-				multiple
-				onValueChange={handleSelectChange}>
-				<SelectTrigger
-					id="select-39"
-					className="ps-2 [&>span]:flex [&>span]:items-center [&>span]:gap-2 [&>span_[data-square]]:shrink-0">
-					<SelectValue placeholder="Select members" />
-				</SelectTrigger>
-				<Label>Multiselect</Label>
-				<MultipleSelector
-					commandProps={{
-						label: "Select frameworks",
-					}}
-					value={frameworks.slice(0, 2)}
-					defaultOptions={frameworks}
-					placeholder="Select frameworks"
-					hideClearAllButton
-					hidePlaceholderWhenSelected
-					emptyIndicator={
-						<p className="text-center text-sm">No results found</p>
-					}
-				/>
-				<SelectContent className="[&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2">
-					{query.isLoading && (
-						<SelectItem value={"1"}>
-							<Skeleton className="w-full h-4" />
-						</SelectItem>
+			<Label htmlFor="select-42">Add Members</Label>
+			<Popover
+				open={open}
+				onOpenChange={setOpen}>
+				<PopoverTrigger asChild>
+					<Button
+						id="select-42"
+						variant="outline"
+						role="combobox"
+						aria-expanded={open}
+						className="w-full justify-start bg-background px-3 font-normal hover:bg-background">
+						<div className="flex flex-wrap gap-1">
+							{selectedMembers.length > 0 ? (
+								selectedMembers.map((member) => (
+									<div className="flex items-center rounded border-muted-foreground mr-2">
+										<Avatar className="w-6 h-6 mr-2">
+											<AvatarImage
+												src={member.image!}
+												alt="User Avatar"
+											/>
+											<AvatarFallback className="flex p-2 h-full w-full items-center justify-center rounded-md bg-muted">
+												{member.name[0]}
+											</AvatarFallback>
+										</Avatar>
+										{member.name}
+										<button
+											onClick={(event) => {
+												event.stopPropagation();
+												const newSelectedMember = selectedMembers.filter(
+													(selecteMember) => selecteMember.id !== member.id
+												);
+												setSelectedMembers(newSelectedMember);
+												onMembersChange(newSelectedMember);
+											}}
+											className="ml-2 text-muted-foreground hover:text-muted-foreground/80"
+											aria-label="Remove member">
+											<X size={16} />
+										</button>
+									</div>
+								))
+							) : (
+								<span className="text-muted-foreground">Select members</span>
+							)}
+						</div>
+						<ChevronDown
+							size={16}
+							strokeWidth={2}
+							className="shrink-0 ml-auto text-muted-foreground/80"
+							aria-hidden="true"
+						/>
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent
+					className="w-full min-w-[var(--radix-popper-anchor-width)] p-0"
+					align="start">
+					{query.isLoading ? (
+						<Command>Loading...</Command>
+					) : (
+						<Command>
+							<CommandList>
+								<CommandEmpty>No members found.</CommandEmpty>
+								<CommandGroup>
+									{query.data?.map((item) => (
+										<CommandItem
+											key={item?.id}
+											value={item?.id}
+											onSelect={(currentValue) => {
+												const isSelected = selectedMembers.some(
+													(member) => member.id === item?.id
+												);
+												const newSelectedMember = isSelected
+													? selectedMembers.filter(
+															(member) => member.id !== item?.id
+														)
+													: [...selectedMembers, item];
+												if (newSelectedMember === null) return;
+												setSelectedMembers(newSelectedMember as User[]);
+												onMembersChange(newSelectedMember as User[]);
+											}}>
+											<Square>{item?.name[0]}</Square>
+											{item?.name}
+											<Check
+												className={cn(
+													"ml-auto",
+													selectedMembers.some(
+														(member) => member.id === item?.id
+													)
+														? "opacity-100"
+														: "opacity-0"
+												)}
+											/>
+										</CommandItem>
+									))}
+								</CommandGroup>
+							</CommandList>
+						</Command>
 					)}
-					{query.error && <p>Error: {query.error.message}</p>}
-					{query.data?.map((member, index) => (
-						<SelectItem
-							key={index}
-							value={index.toString()}>
-							<Square className="bg-indigo-400/20 text-indigo-500">
-								{member?.user?.name[0]}
-							</Square>
-							<span className="truncate">
-								{member?.user?.name ?? "Lorem ipsum"}
-							</span>
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
+				</PopoverContent>
+			</Popover>
 		</div>
 	);
 }

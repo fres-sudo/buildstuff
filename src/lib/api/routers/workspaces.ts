@@ -373,10 +373,11 @@ export const workspacesRouter = createTRPCRouter({
 			})
 		)
 		.query(async ({ ctx, input }) => {
-			return await ctx.db.query.workspaceMembers.findMany({
+			const response = await ctx.db.query.workspaceMembers.findMany({
 				where: eq(workspaceMembers.workspaceId, input.workspaceId),
 				with: { user: true },
 			});
+			return response.map((member) => member.user);
 		}),
 	invite: protectedProcedure
 		.input(
