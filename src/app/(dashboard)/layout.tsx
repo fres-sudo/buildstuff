@@ -16,6 +16,7 @@ import {
 import { CommandDialogMenu } from "@/components/cmdk";
 import UserPropic from "@/components/layout/user-propic";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import ThemeSwitcher from "@/components/theme-switcher";
 
 export default function Page({ children }: any) {
 	return (
@@ -33,6 +34,7 @@ export default function Page({ children }: any) {
 					</div>
 					<div className="pr-8 flex gap-4 items-center">
 						<CommandDialogMenu />
+						<ThemeSwitcher />
 						<UserPropic />
 					</div>
 				</header>

@@ -15,14 +15,6 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import {
 	Sheet,
 	SheetClose,
 	SheetContent,
@@ -32,43 +24,49 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
 import { toast } from "@/hooks/use-toast";
-import { NewTodo } from "@/lib/db/schema.types";
-import { newTodoSchema } from "@/lib/db/schema.zod";
-import { priorityItems } from "./create-todo.form";
+import { NewTask, NewTodo } from "@/lib/db/schema.types";
+import { newTaskSchema, newTodoSchema } from "@/lib/db/schema.zod";
 import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
-import SelectWithIcons from "@/components/ui/select-with-icons";
+import type { Label as LabelType } from "@/lib/db/schema.types";
+import { Textarea } from "@/components/ui/textarea";
+import SelectMultipleMembersDropdown from "@/components/select-multiple-members-dropdowx";
+import SelectOrCreateLabel from "@/components/select-or-create-label";
+import SelectSingleMemberDropdown from "@/components/select-single-member-dropdown";
 
 interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {}
 
-export function CreateTodoSheet({ ...props }: UpdateTaskSheetProps) {
-	const createTodoMutation = api.todos.create.useMutation();
+export function CreateTaskSheet({ ...props }: UpdateTaskSheetProps) {
+	const createTaskMutation = api.tasks.create.useMutation();
 
-	const form = useForm<NewTodo>({
-		resolver: zodResolver(newTodoSchema),
+	const form = useForm<NewTask>({
+		resolver: zodResolver(newTaskSchema),
 	});
+
+	const [assignee, setAssignee] = React.useState<string | null>();
+	const [reviewer, setReviewer] = React.useState<string>();
+	const [labels, setLabels] = React.useState<LabelType[]>([]);
 
 	const [isUpdatePending, startUpdateTransition] = React.useTransition();
 
-	async function onSubmit(input: NewTodo) {
+	async function onSubmit(input: NewTask) {
 		startUpdateTransition(async () => {
-			const newTodo = await createTodoMutation.mutateAsync(input);
+			const newTodo = await createTaskMutation.mutateAsync(input);
 			form.reset();
 			props.onOpenChange?.(false);
 			if (newTodo) {
 				toast({
-					title: "Todo Created",
-					description: "The todo has been created successfully.",
+					title: "Task Created",
+					description: "The task has been created successfully.",
 				});
 			} else {
 				toast({
 					title: "Error",
-					description: "An error occurred while creating the todo.",
+					description: "An error occurred while creating the task.",
 				});
 			}
 		});
@@ -79,14 +77,14 @@ export function CreateTodoSheet({ ...props }: UpdateTaskSheetProps) {
 			<SheetTrigger asChild>
 				<Button>
 					<Icons.add className="w-4 h-4" />
-					Add Todo
+					New Task
 				</Button>
 			</SheetTrigger>
 			<SheetContent className="flex flex-col sm:max-w-md ">
 				<SheetHeader className="text-left">
-					<SheetTitle>Create Todo 📝</SheetTitle>
+					<SheetTitle>Create Task 🎯</SheetTitle>
 					<SheetDescription>
-						Create a new Todo and get to work!
+						Create a new Task and complete your project!
 					</SheetDescription>
 				</SheetHeader>
 				<Form {...form}>
@@ -113,21 +111,33 @@ export function CreateTodoSheet({ ...props }: UpdateTaskSheetProps) {
 						/>
 						<FormField
 							control={form.control}
-							name="priority"
+							name="description"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Priority</FormLabel>
+									<FormLabel>Description</FormLabel>
 									<FormControl>
-										<SelectWithIcons
-											onValueChange={field.onChange}
-											defaultValue={field.value}
-											placeholder="Select a Priority"
-											items={priorityItems}
+										<Textarea
+											value={
+												field.value as
+													| string
+													| number
+													| readonly string[]
+													| undefined
+											}
+											placeholder="Tell us a little bit about yourself"
+											className="resize-none"
 										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
+						/>
+						<SelectOrCreateLabel
+							onLabelSelect={(labels) => setLabels(labels)}
+						/>
+						<SelectSingleMemberDropdown
+							title="Select Assignee"
+							onMemberChange={(member) => setAssignee(member?.id)}
 						/>
 						<SheetFooter className="gap-2 pt-2 sm:space-x-0">
 							<SheetClose asChild>

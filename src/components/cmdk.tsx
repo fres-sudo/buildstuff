@@ -5,6 +5,7 @@ import {
 	Calculator,
 	Calendar,
 	CreditCard,
+	Search,
 	Settings,
 	Smile,
 	User,
@@ -41,6 +42,14 @@ export function CommandDialogMenu() {
 	return (
 		<>
 			<Button
+				className="flex md:hidden"
+				size={"icon"}
+				onClick={() => setOpen(true)}
+				variant={"outline"}>
+				<Search />
+			</Button>
+			<Button
+				className="hidden md:flex"
 				variant={"outline"}
 				onClick={() => setOpen(true)}>
 				<div className="text-sm items-center justify-between flex gap-8 text-muted-foreground">

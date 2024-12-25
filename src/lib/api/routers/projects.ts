@@ -7,30 +7,105 @@ import {
 	projectMembers,
 	projectRoles,
 	projects,
+	tasks,
 	user,
 } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
-import { takeFirst } from "@/lib/utils";
-import {
-	newLabelSchema,
-	newProjectLabelSchema,
-	newProjectSchema,
-	newTodoSchema,
-	projectInvitationSchema,
-} from "@/lib/db/schema.zod";
-import { eq } from "drizzle-orm";
+import { takeFirst, takeFirstOrThrow } from "@/lib/utils";
+import { newProjectSchema, taskSchema } from "@/lib/db/schema.zod";
+import { and, count, eq, exists, gte, lt, lte } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { hash } from "bcryptjs";
+import { isBefore } from "date-fns";
 
 export const projectsRouter = createTRPCRouter({
 	create: protectedProcedure
 		.input(newProjectSchema)
 		.mutation(async ({ ctx, input }) => {
-			return await ctx.db
+			const project = await ctx.db
 				.insert(projects)
 				.values(input)
 				.returning()
 				.then(takeFirst);
+			if (!project) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to create project",
+				});
+			}
+			const projectRole = await ctx.db
+				.insert(projectRoles)
+				.values({
+					projectId: project.id,
+					userId: ctx.session?.user.id,
+					role: "owner",
+				})
+				.returning()
+				.then(takeFirstOrThrow);
+			await ctx.db
+				.insert(projectMembers)
+				.values({
+					projectId: project.id,
+					userId: ctx.session?.user.id,
+					roleId: projectRole.id,
+				})
+				.returning()
+				.then(takeFirstOrThrow);
+			return project;
+		}),
+	update: protectedProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				data: newProjectSchema,
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			return await ctx.db
+				.update(projects)
+				.set({
+					...input.data,
+				})
+				.where(eq(projects.id, input.projectId))
+				.returning()
+				.then(takeFirst);
+		}),
+	listWithJoins: protectedProcedure
+		.input(
+			z.object({
+				workspaceId: z.string(),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			return await ctx.db.query.projects.findMany({
+				where: and(
+					eq(projects.workspaceId, input.workspaceId),
+					exists(
+						ctx.db
+							.select()
+							.from(projectMembers)
+							.where(
+								and(
+									eq(projectMembers.projectId, projects.id),
+									eq(projectMembers.userId, ctx.session?.user.id)
+								)
+							)
+					)
+				),
+				with: {
+					labels: {
+						with: {
+							label: true,
+						},
+					},
+					members: {
+						with: {
+							user: true,
+						},
+					},
+					tasks: true,
+				},
+			});
 		}),
 	list: protectedProcedure
 		.input(
@@ -39,21 +114,40 @@ export const projectsRouter = createTRPCRouter({
 			})
 		)
 		.query(async ({ ctx, input }) => {
-			return await ctx.db
-				.select()
-				.from(projects)
-				.where(eq(projects.workspaceId, input.workspaceId));
+			return await ctx.db.query.projects.findMany({
+				where: and(
+					eq(projects.workspaceId, input.workspaceId),
+					exists(
+						ctx.db
+							.select()
+							.from(projectMembers)
+							.where(
+								and(
+									eq(projectMembers.projectId, projects.id),
+									eq(projectMembers.userId, ctx.session?.user.id)
+								)
+							)
+					)
+				),
+			});
 		}),
+
 	get: protectedProcedure
 		.input(z.object({ projectId: z.string() }))
 		.query(async ({ ctx, input }) => {
 			return await ctx.db.query.projects.findFirst({
 				where: eq(projects.id, input.projectId),
 				with: {
-					labels: true,
+					labels: {
+						with: {
+							label: true,
+						},
+					},
 					members: {
 						with: {
 							user: true,
+							project: true,
+							role: true,
 						},
 					},
 					tasks: true,
@@ -72,13 +166,20 @@ export const projectsRouter = createTRPCRouter({
 			return value.map((v) => v.label);
 		}),
 	addLabels: protectedProcedure
-		.input(z.array(newProjectLabelSchema))
+		.input(z.object({ projectId: z.string(), labelIds: z.array(z.string()) }))
 		.mutation(async ({ ctx, input }) => {
-			return await ctx.db
-				.insert(projectLabels)
-				.values(input)
-				.returning()
-				.then(takeFirst);
+			return await Promise.all(
+				input.labelIds.map(async (labelId) => {
+					return ctx.db
+						.insert(projectLabels)
+						.values({
+							projectId: input.projectId,
+							labelId,
+						})
+						.returning()
+						.then(takeFirst);
+				})
+			);
 		}),
 	inviteMembers: protectedProcedure
 		.input(
@@ -156,41 +257,6 @@ export const projectsRouter = createTRPCRouter({
 			return invitations;
 		}),
 	join: protectedProcedure
-		.input(projectInvitationSchema)
-		.mutation(async ({ ctx, input }) => {
-			const project = await ctx.db.query.user.findFirst({
-				where: eq(user.email, input.email),
-			});
-			if (!project) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Project not found",
-				});
-			}
-
-			const projectRole = await ctx.db
-				.update(projectRoles)
-				.set({
-					userId: input.id,
-					projectId: project.id,
-					role: "member",
-				})
-				.returning()
-				.then(takeFirst);
-
-			if (!projectRole) {
-				throw new TRPCError({
-					code: "INTERNAL_SERVER_ERROR",
-					message: "Failed to join project",
-				});
-			}
-			await ctx.db.update(projectMembers).set({
-				userId: ctx.session?.user.id,
-				projectId: project.id,
-				roleId: projectRole.id,
-			});
-		}),
-	joinViaEmail: protectedProcedure
 		.input(z.object({ token: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			const invitation = await ctx.db.query.projectInvitations.findFirst({
@@ -224,12 +290,13 @@ export const projectsRouter = createTRPCRouter({
 			}
 
 			const projectRole = await ctx.db
-				.update(projectRoles)
-				.set({
+				.insert(projectRoles)
+				.values({
 					userId: invitatedUser.id,
 					projectId: project.id,
 					role: "guest",
 				})
+				.onConflictDoNothing()
 				.returning()
 				.then(takeFirst);
 
@@ -239,10 +306,172 @@ export const projectsRouter = createTRPCRouter({
 					message: "Failed to join project",
 				});
 			}
-			await ctx.db.update(projectMembers).set({
+			await ctx.db.insert(projectMembers).values({
 				userId: ctx.session?.user.id,
 				projectId: project.id,
 				roleId: projectRole.id,
 			});
+		}),
+	getProjectTasksStats: protectedProcedure
+		.input(
+			z.object({
+				tasks: z.array(taskSchema),
+			})
+		)
+		.query(async ({ ctx }) => {
+			const [
+				totalTasks,
+				assignedTasks,
+				incompleteTasks,
+				completedTasks,
+				overdueTasks,
+				tasksLastWeek,
+				assignedTasksLastWeek,
+				incompleteTasksLastWeek,
+				completedTasksLastWeek,
+				overdueTasksLastWeek,
+			] = await Promise.all([
+				ctx.db.select({ count: count() }).from(tasks).then(takeFirst),
+				ctx.db
+					.select({ count: count() })
+					.from(tasks)
+					.where(and(eq(tasks.assigneeId, ctx.session?.user.id)))
+					.then(takeFirst),
+				ctx.db
+					.select({ count: count() })
+					.from(tasks)
+					.where(
+						and(
+							eq(tasks.assigneeId, ctx.session?.user.id),
+							eq(tasks.statusId, "incomplete")
+						)
+					)
+					.then(takeFirst),
+				ctx.db
+					.select({ count: count() })
+					.from(tasks)
+					.where(
+						and(
+							eq(tasks.assigneeId, ctx.session?.user.id),
+							eq(tasks.statusId, "completed")
+						)
+					)
+					.then(takeFirst),
+				ctx.db
+					.select({ count: count() })
+					.from(tasks)
+					.where(
+						and(
+							eq(tasks.assigneeId, ctx.session?.user.id),
+							eq(tasks.statusId, "incomplete"),
+							lte(tasks.dueDate, new Date())
+						)
+					)
+					.then(takeFirst),
+				(async () => {
+					const lastWeek = new Date();
+					lastWeek.setDate(lastWeek.getDate() - 7);
+					const values = await ctx.db
+						.select({ count: count() })
+						.from(tasks)
+						.where(
+							and(
+								eq(tasks.assigneeId, ctx.session?.user.id),
+								gte(tasks.createdAt, lastWeek),
+								lt(tasks.createdAt, new Date())
+							)
+						);
+					return takeFirst(values);
+				})(),
+				(async () => {
+					const lastWeek = new Date();
+					lastWeek.setDate(lastWeek.getDate() - 7);
+					return ctx.db
+						.select({ count: count() })
+						.from(tasks)
+						.where(
+							and(
+								eq(tasks.assigneeId, ctx.session?.user.id),
+								gte(tasks.createdAt, lastWeek),
+								lt(tasks.createdAt, new Date()),
+								eq(tasks.statusId, "assigned")
+							)
+						)
+						.then(takeFirst);
+				})(),
+				(async () => {
+					const lastWeek = new Date();
+					lastWeek.setDate(lastWeek.getDate() - 7);
+					return ctx.db
+						.select({ count: count() })
+						.from(tasks)
+						.where(
+							and(
+								eq(tasks.assigneeId, ctx.session?.user.id),
+								gte(tasks.createdAt, lastWeek),
+								lt(tasks.createdAt, new Date()),
+								eq(tasks.statusId, "incomplete")
+							)
+						)
+						.then(takeFirst);
+				})(),
+				(async () => {
+					const lastWeek = new Date();
+					lastWeek.setDate(lastWeek.getDate() - 7);
+					return ctx.db
+						.select({ count: count() })
+						.from(tasks)
+						.where(
+							and(
+								eq(tasks.assigneeId, ctx.session?.user.id),
+								gte(tasks.createdAt, lastWeek),
+								lt(tasks.createdAt, new Date()),
+								eq(tasks.statusId, "completed")
+							)
+						)
+						.then(takeFirst);
+				})(),
+				(async () => {
+					const lastWeek = new Date();
+					lastWeek.setDate(lastWeek.getDate() - 7);
+					return ctx.db
+						.select({ count: count() })
+						.from(tasks)
+						.where(
+							and(
+								eq(tasks.assigneeId, ctx.session?.user.id),
+								gte(tasks.createdAt, lastWeek),
+								lt(tasks.createdAt, new Date()),
+								eq(tasks.statusId, "incomplete"),
+								lte(tasks.dueDate, new Date())
+							)
+						)
+						.then(takeFirst);
+				})(),
+			]);
+
+			const taskDifference =
+				(totalTasks?.count || 0) - (tasksLastWeek?.count || 0);
+			const assignedTaskDifference =
+				(assignedTasks?.count || 0) - (assignedTasksLastWeek?.count || 0);
+			const incompleteTaskDifference =
+				(incompleteTasks?.count || 0) - (incompleteTasksLastWeek?.count || 0);
+			const completedTaskDifference =
+				(completedTasks?.count || 0) - (completedTasksLastWeek?.count || 0);
+			const overdueTaskDifference =
+				(overdueTasks?.count || 0) - (overdueTasksLastWeek?.count || 0);
+
+			return {
+				totalTasks: totalTasks?.count || 0,
+				assignedTasks: assignedTasks?.count || 0,
+				incompleteTasks: incompleteTasks?.count || 0,
+				completedTasks: completedTasks?.count || 0,
+				overdueTasks: overdueTasks?.count || 0,
+				taskDifference,
+				assignedTaskDifference,
+				incompleteTaskDifference,
+				completedTaskDifference,
+				overdueTaskDifference,
+			};
 		}),
 });

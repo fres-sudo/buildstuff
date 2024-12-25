@@ -7,33 +7,30 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "buildstuff",
-	description: "Just Enough Tools to make Stuff Done",
+  title: "buildstuff",
+  description: "Just Enough Tools to make Stuff Done",
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-	return (
-		<>
-			<html
-				lang="en"
-				className={inter.className}
-				suppressHydrationWarning>
-				<head />
-				<body>
-					<ThemeProvider
-						attribute="class"
-						defaultTheme="dark"
-						enableSystem
-						disableTransitionOnChange>
-						{children}
-						<Toaster />
-					</ThemeProvider>
-				</body>
-			</html>
-		</>
-	);
+  return (
+    <>
+      <html lang="en" className={inter.className} suppressHydrationWarning>
+        <head />
+        <body>
+          <ThemeProvider
+            attribute="class"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </body>
+      </html>
+    </>
+  );
 }

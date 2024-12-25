@@ -113,6 +113,27 @@
       "when": 1731963726074,
       "tag": "0015_even_secret_warriors",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1731971424522,
+      "tag": "0016_fast_thunderbolts",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1731972279107,
+      "tag": "0017_outgoing_mad_thinker",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1735124024662,
+      "tag": "0018_amazing_marauders",
+      "breakpoints": true
     }
   ]
 }

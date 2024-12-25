@@ -4,6 +4,7 @@ import { todosRouter } from "./routers/todos";
 import { workspacesRouter } from "./routers/workspaces";
 import { labelsRouter } from "./routers/labels";
 import { projectsRouter } from "./routers/projects";
+import { tasksRouter } from "./routers/tasks";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
 	workspaces: workspacesRouter,
 	labels: labelsRouter,
 	projects: projectsRouter,
+	tasks: tasksRouter,
 });
 
 // export type definition of API

@@ -12,6 +12,7 @@ import {
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -32,15 +33,31 @@ import { toast } from "sonner";
 import MultipleEmailFormField from "@/components/multiple-email-form-field";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Separator } from "@radix-ui/react-separator";
-import SelectMemberDropdown from "@/components/select-member-dropdowx";
+import SelectMultipleMembersDropdown from "@/components/select-multiple-members-dropdowx";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 const invitationFormSchema = z.object({ token: z.string() });
 type InvitationFormType = z.infer<typeof invitationFormSchema>;
 
 const CreateProjectDialog = ({
 	onProjectCreated,
+	children,
+	buttonClassname,
+	buttonVariant,
 }: {
 	onProjectCreated: (project: NewProject) => void;
+	children?: React.ReactNode;
+	buttonClassname?: string;
+	buttonVariant?:
+		| "link"
+		| "default"
+		| "destructive"
+		| "outline"
+		| "secondary"
+		| "ghost"
+		| null
+		| undefined;
 }) => {
 	const createProjectMutation = api.projects.create.useMutation();
 	const addLabelsMutation = api.projects.addLabels.useMutation();
@@ -73,7 +90,11 @@ const CreateProjectDialog = ({
 			return;
 		}
 		await Promise.all([
-			labels.length > 0 && addLabelsMutation.mutateAsync(labels),
+			labels.length > 0 &&
+				addLabelsMutation.mutateAsync({
+					projectId: project.id,
+					labelIds: labels.map((l) => l.id),
+				}),
 			emails.length > 0 &&
 				inviteGeustsMutatoin.mutateAsync({
 					projectId: project.id,
@@ -101,12 +122,12 @@ const CreateProjectDialog = ({
 			open={open}
 			onOpenChange={setOpen}>
 			<Button
-				className="p-1 m-0 rounded-full h-6 w-6"
-				variant={"outline"}
+				className={buttonClassname ?? "p-1 m-0 rounded-full h-6 w-6"}
+				variant={buttonVariant ?? "outline"}
 				onClick={() => {
 					setOpen(true);
 				}}>
-				<Plus className="h-6 w-6 text-muted-foreground mx-1" />
+				{children ?? <Plus className="h-6 w-6 text-muted-foreground mx-1" />}
 			</Button>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
@@ -124,7 +145,7 @@ const CreateProjectDialog = ({
 						<Form {...createProjectForm}>
 							<form
 								onSubmit={createProjectForm.handleSubmit(onCreateProject)}
-								className="w-full space-y-2 s">
+								className="w-full space-y-2">
 								<FormField
 									control={createProjectForm.control}
 									name="name"
@@ -145,12 +166,15 @@ const CreateProjectDialog = ({
 								<SelectOrCreateLabel
 									onLabelSelect={(labels) => setLabels(labels)}
 								/>
-								<SelectMemberDropdown
+								<SelectMultipleMembersDropdown
 									onMembersChange={(members) =>
 										setMember(members.map((m) => m.id))
 									}
 								/>
-								<FormLabel className="mt-4">Invite Guests</FormLabel>
+								<FormDescription>
+									Invite people that are already part of the current Workspace
+									to collaborate on this project.
+								</FormDescription>
 								<MultipleEmailFormField
 									onChangeEmails={(emails) => setEmails(emails)}
 								/>

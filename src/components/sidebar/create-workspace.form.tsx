@@ -20,9 +20,10 @@ import { newWorkspaceSchema } from "@/lib/db/schema.zod";
 import { NewWorkspace } from "@/lib/db/schema.types";
 import { api } from "@/trpc/react";
 import { create } from "domain";
-import { Loader } from "lucide-react";
+import { Loader, Smile } from "lucide-react";
 import { toast } from "sonner";
 import { getRandomIcon } from "../random-icons";
+import { EmojiSelector } from "../emoji-selector";
 
 const CreateWorkspaceForm = () => {
 	const createWorkspaceMutation = api.workspaces.create.useMutation();
@@ -32,7 +33,6 @@ const CreateWorkspaceForm = () => {
 	});
 
 	async function onCreateWorkspace(data: NewWorkspace) {
-		console.log("data", data);
 		const result = await createWorkspaceMutation.mutateAsync({
 			...data,
 			logo: getRandomIcon(),
@@ -42,6 +42,11 @@ const CreateWorkspaceForm = () => {
 		}
 		createWorkspaceForm.reset();
 	}
+
+	const onSelectEmojiHandler = (emojiCode: string) => {
+		const emoji = String.fromCodePoint(parseInt(emojiCode, 16));
+		setMessage((prevMessage) => prevMessage + emoji);
+	};
 
 	return (
 		<Form {...createWorkspaceForm}>
@@ -81,7 +86,20 @@ const CreateWorkspaceForm = () => {
 							<FormMessage />
 						</FormItem>
 					)}
-				/>
+				/>{" "}
+				<EmojiSelector
+					id="edit-message-emoji-selector"
+					asChild
+					slide="right"
+					align="end"
+					onSelectedEmoji={onSelectEmojiHandler}>
+					<Button
+						className="w-8 h-8 sm:w-10 sm:h-10"
+						size={"icon"}
+						variant={"ghost"}>
+						<Smile className="w-5 h-5 sm:w-auto sm:h-auto" />
+					</Button>
+				</EmojiSelector>
 				<FormField
 					control={createWorkspaceForm.control}
 					name="color"

@@ -1,22 +1,7 @@
 "use client";
 
-import {
-	CirclePlus,
-	Folder,
-	Forward,
-	MoreHorizontal,
-	Plus,
-	Trash2,
-	type LucideIcon,
-} from "lucide-react";
-
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useMemo } from "react";
+import { PinIcon, type LucideIcon } from "lucide-react";
 import {
 	SidebarGroup,
 	SidebarGroupLabel,
@@ -24,22 +9,35 @@ import {
 	SidebarMenuAction,
 	SidebarMenuButton,
 	SidebarMenuItem,
-	useSidebar,
 } from "@/components/ui/sidebar";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Skeleton } from "../ui/skeleton";
 import { api } from "@/trpc/react";
-import { Button } from "../ui/button";
 import CreateProjectDialog from "@/app/(dashboard)/projects/_components/create-project-dialog";
 
 export function NavProjects() {
-	const { isMobile } = useSidebar();
 	const { currentWorkspace } = useWorkspace();
-	if (!currentWorkspace) return <LoadingSkeleton></LoadingSkeleton>;
+	if (!currentWorkspace) return <LoadingSkeleton />;
 	const projects = api.projects.list.useQuery({
 		workspaceId: currentWorkspace?.id,
 	});
+	// useMemo(
+	//   () =>
+	//     api.projects.list.useQuery({
+	//       workspaceId: currentWorkspace?.id,
+	//     }),
+	//   [currentWorkspace],
+	// );
 
+	const sortedProjects = useMemo(
+		() =>
+			projects.data?.sort((a, b) => {
+				if (a.pinned && !b.pinned) return -1;
+				if (!a.pinned && b.pinned) return 1;
+				return 0;
+			}),
+		[projects]
+	);
 	return (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 			<SidebarGroupLabel className="flex justify-between">
@@ -48,48 +46,19 @@ export function NavProjects() {
 			</SidebarGroupLabel>
 			<SidebarMenu>
 				{projects.isLoading && <LoadingSkeleton />}
-				{projects.data?.map((item) => (
+				{sortedProjects?.map((item) => (
 					<SidebarMenuItem key={item.name}>
 						<SidebarMenuButton asChild>
-							<a href={`/projects/${item.id}`}>
+							<a
+								href={`/projects/${item.id}`}
+								className="justify-between">
 								{/* <item.icon /> */}
 								<span>{item.name}</span>
+								{item.pinned && <PinIcon className="w-2 h-2" />}
 							</a>
 						</SidebarMenuButton>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<SidebarMenuAction showOnHover>
-									<MoreHorizontal />
-									<span className="sr-only">More</span>
-								</SidebarMenuAction>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								className="w-48 rounded-lg"
-								side={isMobile ? "bottom" : "right"}
-								align={isMobile ? "end" : "start"}>
-								<DropdownMenuItem>
-									<Folder className="text-muted-foreground" />
-									<span>View Project</span>
-								</DropdownMenuItem>
-								<DropdownMenuItem>
-									<Forward className="text-muted-foreground" />
-									<span>Share Project</span>
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem>
-									<Trash2 className="text-muted-foreground" />
-									<span>Delete Project</span>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
 					</SidebarMenuItem>
 				))}
-				{/* <SidebarMenuItem>
-					<SidebarMenuButton className="text-sidebar-foreground/70">
-						<MoreHorizontal className="text-sidebar-foreground/70" />
-						<span>More</span>
-					</SidebarMenuButton>
-				</SidebarMenuItem> */}
 			</SidebarMenu>
 		</SidebarGroup>
 	);

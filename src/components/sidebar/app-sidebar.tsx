@@ -2,32 +2,21 @@
 
 import * as React from "react";
 import {
-	AudioWaveform,
 	Bell,
-	BookOpen,
 	Bot,
 	ChartLine,
-	Check,
 	CircleCheck,
-	Command,
-	Frame,
-	GalleryVerticalEnd,
 	Home,
 	Hourglass,
 	LayoutList,
-	Map,
-	MessageSquareCode,
-	MessageSquareDashedIcon,
 	MessageSquareDot,
 	PersonStanding,
-	PieChart,
-	Settings2,
-	SquareTerminal,
+	Settings,
 } from "lucide-react";
 import { NavMain } from "./nav-main";
 import { NavProjects } from "./nav-projects";
 import { NavUser } from "./nav-user";
-import { WorkSpaceSwitcher } from "./team-switcher";
+import { WorkSpaceSwitcher } from "./workspace-switcher";
 import {
 	Sidebar,
 	SidebarContent,
@@ -84,9 +73,9 @@ const data = {
 			icon: PersonStanding,
 		},
 		{
-			title: "Help",
-			url: "/help",
-			icon: Bot,
+			title: "Settings",
+			url: "/settings",
+			icon: Settings,
 		},
 	],
 };
@@ -106,11 +95,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					items={data.navMain}
 					title={currentWorkspace?.name || "Loading..."}
 				/>
+				<NavProjects />
 				<NavMain
 					items={data.personal}
 					title="Personal"
 				/>
-				<NavProjects />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

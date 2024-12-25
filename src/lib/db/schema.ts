@@ -59,8 +59,7 @@ export const workspaces = pgTable("workspaces", {
 		.$defaultFn(() => createId()),
 	name: text("name").notNull(),
 	description: text("description"),
-	color: text("color").default("zinc"),
-	logo: text("logo"),
+	emoji: text("emoji"),
 	ownerId: text("owner_id").references(() => user.id, { onDelete: "cascade" }),
 	...timestamps,
 });
@@ -106,6 +105,9 @@ export const projects = pgTable("projects", {
 	workspaceId: text("workspace_id").references(() => workspaces.id, {
 		onDelete: "cascade",
 	}),
+	emoji: text("emoji"),
+	pinned: boolean("pinned").notNull().default(false),
+	archived: boolean("archived").notNull().default(false),
 	...timestamps,
 });
 
@@ -168,6 +170,7 @@ export const projectInvitations = pgTable("project_invitations", {
 			onDelete: "cascade",
 		})
 		.notNull(),
+	userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
 	email: text("email").notNull(),
 	token: text("token").unique().notNull(),
 	expiresAt: timestamp("expires_at").notNull(),
@@ -335,6 +338,7 @@ export const userInbox = pgTable("user_inbox", {
 	action: text("action"),
 	tile: text("title").notNull(),
 	message: text("message").notNull(),
+	read: boolean("read").notNull().default(false),
 	...timestamps,
 });
 
@@ -353,6 +357,7 @@ export const userRelations = relations(user, ({ many }) => ({
 	attachments: many(attachments),
 	todos: many(todos),
 	inbox: many(userInbox),
+	projectInvitations: many(projectInvitations),
 }));
 
 export const workspacesRelations = relations(workspaces, ({ many, one }) => ({
@@ -410,6 +415,10 @@ export const projectMembersRelations = relations(projectMembers, ({ one }) => ({
 	user: one(user, {
 		fields: [projectMembers.userId],
 		references: [user.id],
+	}),
+	role: one(projectRoles, {
+		fields: [projectMembers.roleId],
+		references: [projectRoles.id],
 	}),
 }));
 
@@ -527,6 +536,10 @@ export const projectInvitationsRelations = relations(
 			fields: [projectInvitations.projectId],
 			references: [projects.id],
 		}),
+		user: one(user, {
+			fields: [projectInvitations.userId],
+			references: [user.id],
+		}),
 	})
 );
 
@@ -541,16 +554,20 @@ export const taskLabelsRelations = relations(taskLabels, ({ one }) => ({
 	}),
 }));
 
-export const projectsRolesRelations = relations(projectRoles, ({ one }) => ({
-	project: one(projects, {
-		fields: [projectRoles.projectId],
-		references: [projects.id],
-	}),
-	user: one(user, {
-		fields: [projectRoles.userId],
-		references: [user.id],
-	}),
-}));
+export const projectsRolesRelations = relations(
+	projectRoles,
+	({ one, many }) => ({
+		project: one(projects, {
+			fields: [projectRoles.projectId],
+			references: [projects.id],
+		}),
+		user: one(user, {
+			fields: [projectRoles.userId],
+			references: [user.id],
+		}),
+		members: many(projectMembers),
+	})
+);
 
 export const taskStatusesRelations = relations(taskStatuses, ({ one }) => ({
 	project: one(projects, {

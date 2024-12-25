@@ -35,8 +35,7 @@ export function WorkSpaceSwitcher() {
 		<SidebarMenu>
 			<SidebarMenuItem>
 				<div className="my-2 data-[state=open]:my-0 flex items-center">
-					<BuildStuffIcon className="data-[state=open]:hidden" />
-					<BuildStuffLogo className="hidden data-[state=open]:flex" />
+					<BuildStuffLogo className="data-[state=close]:hidden data-[state=open]:flex" />
 				</div>
 			</SidebarMenuItem>
 			<Separator />
@@ -46,8 +45,9 @@ export function WorkSpaceSwitcher() {
 						<SidebarMenuButton
 							size="lg"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-sidebar-primary-foreground">
-								{currentWorkspace?.logo && <currentWorkspace.logo />}
+							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-black">
+								{currentWorkspace?.name.charAt(0) || "W"}
+								{/* {currentWorkspace?.logo && <currentWorkspace.logo />} */}
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight ">
 								<span className="truncate font-semibold">
@@ -68,18 +68,24 @@ export function WorkSpaceSwitcher() {
 						<DropdownMenuLabel className="text-xs text-muted-foreground">
 							Work Spaces
 						</DropdownMenuLabel>
-						{workspaces.data?.map((workSpace, index) => (
-							<DropdownMenuItem
-								key={workSpace?.name}
-								onClick={() => {
-									if (workSpace) setCurrentWorkspace(workSpace);
-								}}
-								className="gap-2 p-2">
-								<div className="flex size-6 items-center justify-center rounded-sm border"></div>
-								{workSpace?.name}
-								<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-							</DropdownMenuItem>
-						))}
+						{workspaces.data
+							?.sort(
+								(a, b) =>
+									new Date(b?.createdAt ?? new Date()).getTime() -
+									new Date(a?.createdAt ?? new Date()).getTime()
+							)
+							.map((workSpace, index) => (
+								<DropdownMenuItem
+									key={workSpace?.id}
+									onClick={() => {
+										if (workSpace) setCurrentWorkspace(workSpace);
+									}}
+									className="gap-2 p-2">
+									<div className="flex size-6 items-center justify-center rounded-sm border"></div>
+									{workSpace?.name}
+									<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+								</DropdownMenuItem>
+							))}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
 							<WorkSpaceDialog />

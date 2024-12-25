@@ -29,31 +29,17 @@ import {
 import { Check, ChevronDown, X } from "lucide-react";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useSession } from "@/lib/api/auth/auth-client";
 
-const Square = ({
-	className,
-	children,
-}: {
-	className?: string;
-	children: React.ReactNode;
-}) => (
-	<span
-		data-square
-		className={cn(
-			"flex size-5 items-center justify-center rounded bg-muted text-xs font-medium text-muted-foreground",
-			className
-		)}
-		aria-hidden="true">
-		{children}
-	</span>
-);
-
-export default function SelectMemberDropdown({
+export default function SelectMultipleMembersDropdown({
 	onMembersChange,
+	title,
 }: {
+	title?: string;
 	onMembersChange: (members: User[]) => void;
 }) {
 	const { currentWorkspace } = useWorkspace();
+	const { data: session } = useSession();
 	const [selectedMembers, setSelectedMembers] = useState<User[]>([]);
 	if (!currentWorkspace) return null;
 
@@ -65,13 +51,12 @@ export default function SelectMemberDropdown({
 
 	return (
 		<div className="space-y-2">
-			<Label htmlFor="select-42">Add Members</Label>
+			<Label htmlFor="select-42">{title ?? "Add Members"}</Label>
 			<Popover
 				open={open}
 				onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button
-						id="select-42"
 						variant="outline"
 						role="combobox"
 						aria-expanded={open}
@@ -106,7 +91,9 @@ export default function SelectMemberDropdown({
 									</div>
 								))
 							) : (
-								<span className="text-muted-foreground">Select members</span>
+								<span className="text-muted-foreground">
+									{title ?? "Select members"}
+								</span>
 							)}
 						</div>
 						<ChevronDown
@@ -127,37 +114,47 @@ export default function SelectMemberDropdown({
 							<CommandList>
 								<CommandEmpty>No members found.</CommandEmpty>
 								<CommandGroup>
-									{query.data?.map((item) => (
-										<CommandItem
-											key={item?.id}
-											value={item?.id}
-											onSelect={(currentValue) => {
-												const isSelected = selectedMembers.some(
-													(member) => member.id === item?.id
-												);
-												const newSelectedMember = isSelected
-													? selectedMembers.filter(
-															(member) => member.id !== item?.id
-														)
-													: [...selectedMembers, item];
-												if (newSelectedMember === null) return;
-												setSelectedMembers(newSelectedMember as User[]);
-												onMembersChange(newSelectedMember as User[]);
-											}}>
-											<Square>{item?.name[0]}</Square>
-											{item?.name}
-											<Check
-												className={cn(
-													"ml-auto",
-													selectedMembers.some(
+									{query.data
+										?.filter((item) => item?.id !== session?.user?.id)
+										.map((item) => (
+											<CommandItem
+												key={item?.id}
+												value={item?.id}
+												onSelect={(currentValue) => {
+													const isSelected = selectedMembers.some(
 														(member) => member.id === item?.id
-													)
-														? "opacity-100"
-														: "opacity-0"
-												)}
-											/>
-										</CommandItem>
-									))}
+													);
+													const newSelectedMember = isSelected
+														? selectedMembers.filter(
+																(member) => member.id !== item?.id
+															)
+														: [...selectedMembers, item];
+													if (newSelectedMember === null) return;
+													setSelectedMembers(newSelectedMember as User[]);
+													onMembersChange(newSelectedMember as User[]);
+												}}>
+												<Avatar className="w-6 h-6 mr-2">
+													<AvatarImage
+														src={item?.image!}
+														alt="User Avatar"
+													/>
+													<AvatarFallback className="flex p-2 h-full w-full items-center justify-center rounded-md bg-muted">
+														{item?.name[0]}
+													</AvatarFallback>
+												</Avatar>
+												{item?.name}
+												<Check
+													className={cn(
+														"ml-auto",
+														selectedMembers.some(
+															(member) => member.id === item?.id
+														)
+															? "opacity-100"
+															: "opacity-0"
+													)}
+												/>
+											</CommandItem>
+										))}
 								</CommandGroup>
 							</CommandList>
 						</Command>

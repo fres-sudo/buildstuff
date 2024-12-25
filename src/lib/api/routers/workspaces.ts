@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure } from "@/lib/api/trpc";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
 	workspaces,
 	workspaceMembers,
@@ -13,7 +13,6 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import {
 	addMemberSchema,
-	createWorkspaceSchema,
 	invitationLinkSchema,
 	removeMemberSchema,
 	updateWorkspaceSchema,
@@ -21,6 +20,35 @@ import {
 import { newWorkspaceSchema } from "@/lib/db/schema.zod";
 
 export const workspacesRouter = createTRPCRouter({
+	// ** Get Current Workspace **
+	getCurrent: protectedProcedure.query(async ({ ctx }) => {
+		const userId = ctx.session.user.id;
+
+		const savedWorkspace =
+			typeof window !== "undefined"
+				? localStorage.getItem("currentWorkspace")
+				: null;
+		if (savedWorkspace) {
+			return JSON.parse(savedWorkspace);
+		}
+
+		const currentWorkspace = await ctx.db.query.workspaceMembers.findFirst({
+			where: eq(workspaceMembers.userId, userId),
+			with: { workspace: true },
+		});
+
+		if (currentWorkspace?.workspace) {
+			if (typeof window !== "undefined") {
+				localStorage.setItem(
+					"currentWorkspace",
+					JSON.stringify(currentWorkspace.workspace)
+				);
+			}
+			return currentWorkspace.workspace;
+		}
+
+		return null;
+	}),
 	// **Create Workspace**
 	create: protectedProcedure
 		.input(newWorkspaceSchema)
@@ -50,11 +78,11 @@ export const workspacesRouter = createTRPCRouter({
 			const { id } = input;
 			const userId = ctx.session.user.id;
 
-			// Controlla se l'utente è un membro della workspace
 			const membership = await ctx.db.query.workspaceMembers.findFirst({
-				where:
-					eq(workspaceMembers.workspaceId, id) &&
-					eq(workspaceMembers.userId, userId),
+				where: and(
+					eq(workspaceMembers.workspaceId, id),
+					eq(workspaceMembers.userId, userId)
+				),
 			});
 
 			if (!membership) {
@@ -64,7 +92,6 @@ export const workspacesRouter = createTRPCRouter({
 				});
 			}
 
-			// Recupera la workspace con i dettagli
 			const workspace = await ctx.db.query.workspaces.findFirst({
 				where: eq(workspaces.id, id),
 			});
@@ -82,7 +109,6 @@ export const workspacesRouter = createTRPCRouter({
 	list: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session.user.id;
 
-		// Recupera tutte le workspace di cui l'utente è membro
 		const memberWorkspaces = await ctx.db.query.workspaceMembers.findMany({
 			where: eq(workspaceMembers.userId, userId),
 			with: { workspace: true },
@@ -98,7 +124,6 @@ export const workspacesRouter = createTRPCRouter({
 			const { id, name, description, color } = input;
 			const userId = ctx.session.user.id;
 
-			// Controlla se l'utente è l'owner della workspace
 			const workspace = await ctx.db.query.workspaces.findFirst({
 				where: eq(workspaces.id, id),
 			});

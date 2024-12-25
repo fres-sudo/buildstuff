@@ -49,12 +49,10 @@ export function LoginForm() {
 				},
 				{
 					onError: (ctx) => {
-						// Handle the error
 						if (ctx.error.status === 403) {
 							setError("Please verify your email address");
 						}
-						//you can also show the original error message
-						alert(ctx.error.message);
+						setError(ctx.error.message);
 					},
 				}
 			)

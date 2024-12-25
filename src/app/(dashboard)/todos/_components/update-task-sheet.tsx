@@ -35,13 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
 import { toast } from "@/hooks/use-toast";
-import {
-	NewTodo,
-	Todo,
-	Label,
-	NewLabel,
-	NewTodoLabel,
-} from "@/lib/db/schema.types";
+import { NewTodo, Todo, Label } from "@/lib/db/schema.types";
 import { newTodoSchema, newLabelSchema } from "@/lib/db/schema.zod";
 import { priorityItems } from "./create-todo.form";
 
@@ -49,15 +43,11 @@ interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {
 	todo: Todo | null;
 	labels: Label[];
-	onCreateLabel: (label: NewLabel) => Promise<Label>;
-	onCreateTodoLabel: (todoLabel: NewTodoLabel) => Promise<void>;
 }
 
 export function UpdateTaskSheet({
 	todo,
 	labels,
-	onCreateLabel,
-	onCreateTodoLabel,
 	...props
 }: UpdateTaskSheetProps) {
 	const [isUpdatePending, startUpdateTransition] = React.useTransition();
@@ -91,13 +81,6 @@ export function UpdateTaskSheet({
 				description: "The task details have been updated.",
 			});
 		});
-	}
-
-	async function handleCreateLabel() {
-		if (newLabel.trim() === "") return;
-		const label = await onCreateLabel({ name: newLabel, color: "#0000FF" });
-		await onCreateTodoLabel({ todoId: todo!.id, labelId: label.id });
-		setNewLabel("");
 	}
 
 	return (
@@ -134,9 +117,7 @@ export function UpdateTaskSheet({
 						<FormItem>
 							<FormLabel>Label</FormLabel>
 							<Select
-								onValueChange={(value) =>
-									onCreateTodoLabel({ todoId: todo!.id, labelId: value })
-								}
+								onValueChange={(value) => {}}
 								defaultValue="">
 								<FormControl>
 									<SelectTrigger className="capitalize">
@@ -168,7 +149,7 @@ export function UpdateTaskSheet({
 								/>
 							</FormControl>
 							<Button
-								onClick={handleCreateLabel}
+								onClick={() => {}}
 								className="mt-2">
 								Add Label
 							</Button>

@@ -3,6 +3,8 @@
 import {
 	BadgeCheck,
 	Bell,
+	Bot,
+	Check,
 	ChevronsUpDown,
 	CreditCard,
 	Link,
@@ -120,8 +122,8 @@ export function NavUser() {
 								onClick={() => {
 									router.push("/account");
 								}}>
-								<BadgeCheck />
-								Account
+								<Bot />
+								Help
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={() => {
