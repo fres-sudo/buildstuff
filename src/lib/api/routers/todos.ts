@@ -15,7 +15,7 @@ import {
 import { todos } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
 import { takeFirst } from "@/lib/utils";
-import { newTodoSchema } from "@/lib/db/schema.zod";
+import { newTodoSchema } from "@/lib/db/zod.schema";
 import {
 	getTodosSchema,
 	searchParamsCache,

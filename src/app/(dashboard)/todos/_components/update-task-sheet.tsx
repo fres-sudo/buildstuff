@@ -36,7 +36,7 @@ import { Input } from "@/components/ui/input";
 
 import { toast } from "@/hooks/use-toast";
 import { NewTodo, Todo, Label } from "@/lib/db/schema.types";
-import { newTodoSchema, newLabelSchema } from "@/lib/db/schema.zod";
+import { newTodoSchema, newLabelSchema } from "@/lib/db/zod.schema";
 import { priorityItems } from "./create-todo.form";
 
 interface UpdateTaskSheetProps

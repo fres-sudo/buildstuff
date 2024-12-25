@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input";
 
 import { toast } from "@/hooks/use-toast";
 import { NewTask, NewTodo } from "@/lib/db/schema.types";
-import { newTaskSchema, newTodoSchema } from "@/lib/db/schema.zod";
+import { newTaskSchema, newTodoSchema } from "@/lib/db/zod.schema";
 import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
 import type { Label as LabelType } from "@/lib/db/schema.types";

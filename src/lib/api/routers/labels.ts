@@ -14,7 +14,7 @@ import {
 } from "drizzle-orm";
 import { labels, todos } from "@/lib/db/schema";
 import { takeFirst } from "@/lib/utils";
-import { newLabelSchema } from "@/lib/db/schema.zod";
+import { newLabelSchema } from "@/lib/db/zod.schema";
 
 import { Todo } from "@/lib/db/schema.types";
 

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,6 +19,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import ProvidersComponent from "./providers";
 import { signIn, useSession } from "@/lib/api/auth/auth-client";
+import { useSearchParams } from "next/navigation";
+import { se } from "date-fns/locale";
 
 const loginSchema = z.object({
 	email: z.string().email(),
@@ -34,32 +36,51 @@ export function LoginForm() {
 	const loginForm = useForm<LoginScheme>({
 		resolver: zodResolver(loginSchema),
 	});
-
+	const searchParams = useSearchParams();
 	const { isPending } = useSession();
 
-	async function onSubmit(data: LoginScheme) {
+	useEffect(() => {
+		const errorParam = searchParams.get("error");
+		switch (errorParam) {
+			case "unauthorized":
+				setError("Unauthorized");
+				break;
+			case "invalid":
+				setError("Invalid email or password");
+				break;
+			case "verify":
+				setError("Please verify your email address");
+				break;
+			case "email_not_found":
+				setError("Email not found");
+				break;
+			default:
+				break;
+		}
+	}, [searchParams]);
+
+	async function onSubmit(input: LoginScheme) {
 		setIsLoading(true);
 		setError(null);
-		await signIn
-			.email(
-				{
-					email: data.email,
-					password: data.password,
-					callbackURL: "/home",
+		const { data, error } = await signIn.email(
+			{
+				email: input.email,
+				password: input.password,
+				callbackURL: "/home",
+			},
+			{
+				onError: (ctx) => {
+					if (ctx.error.status === 403) {
+						setError("Please verify your email address");
+					}
+					setError(ctx.error.message);
 				},
-				{
-					onError: (ctx) => {
-						if (ctx.error.status === 403) {
-							setError("Please verify your email address");
-						}
-						setError(ctx.error.message);
-					},
-				}
-			)
-			.then(() => setIsLoading(false))
-			.catch((error) => {
-				setError("Invalid email or password");
-			});
+			}
+		);
+		setIsLoading(false);
+		if (error) {
+			setError(error.message ?? "An unknown error occurred");
+		}
 	}
 
 	return (

@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { LoginForm } from "@/app/(auth)/_components/login.form";
-import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
 	title: "Login",

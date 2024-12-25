@@ -1,9 +1,6 @@
 "use client";
 import { useForm } from "react-hook-form";
-import { createWorkspaceSchema } from "@/lib/dtos/workspaces.dto";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useState } from "react";
 import {
 	Form,
 	FormControl,
@@ -15,14 +12,11 @@ import {
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import ColorRadio from "../ui/color-radio";
-import { newWorkspaceSchema } from "@/lib/db/schema.zod";
+import { newWorkspaceSchema } from "@/lib/db/zod.schema";
 import { NewWorkspace } from "@/lib/db/schema.types";
 import { api } from "@/trpc/react";
-import { create } from "domain";
 import { Loader, Smile } from "lucide-react";
 import { toast } from "sonner";
-import { getRandomIcon } from "../random-icons";
 import { EmojiSelector } from "../emoji-selector";
 
 const CreateWorkspaceForm = () => {
@@ -86,19 +80,6 @@ const CreateWorkspaceForm = () => {
 						</FormItem>
 					)}
 				/>{" "}
-				<EmojiSelector
-					id="edit-message-emoji-selector"
-					asChild
-					slide="right"
-					align="end"
-					onSelectedEmoji={onSelectEmojiHandler}>
-					<Button
-						className="w-8 h-8 sm:w-10 sm:h-10"
-						size={"icon"}
-						variant={"ghost"}>
-						<Smile className="w-5 h-5 sm:w-auto sm:h-auto" />
-					</Button>
-				</EmojiSelector>
 				<FormField
 					control={createWorkspaceForm.control}
 					name="emoji"
@@ -117,6 +98,7 @@ const CreateWorkspaceForm = () => {
 										variant={"ghost"}>
 										<Smile className="w-5 h-5 sm:w-auto sm:h-auto" />
 									</Button>
+								</EmojiSelector>
 							</FormControl>
 							<FormMessage />
 						</FormItem>

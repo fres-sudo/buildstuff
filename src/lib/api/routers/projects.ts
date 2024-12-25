@@ -12,7 +12,7 @@ import {
 } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
 import { takeFirst, takeFirstOrThrow } from "@/lib/utils";
-import { newProjectSchema, taskSchema } from "@/lib/db/schema.zod";
+import { newProjectSchema, taskSchema } from "@/lib/db/zod.schema";
 import { and, count, eq, exists, gte, lt, lte } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { hash } from "bcryptjs";

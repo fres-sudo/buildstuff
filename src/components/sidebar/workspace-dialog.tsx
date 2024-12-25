@@ -28,7 +28,7 @@ import { api } from "@/trpc/react";
 import { NewWorkspace } from "@/lib/db/schema.types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { newWorkspaceSchema } from "@/lib/db/schema.zod";
+import { newWorkspaceSchema } from "@/lib/db/zod.schema";
 import { Textarea } from "../ui/textarea";
 import { set } from "date-fns";
 

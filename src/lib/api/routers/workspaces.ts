@@ -17,7 +17,7 @@ import {
 	removeMemberSchema,
 	updateWorkspaceSchema,
 } from "@/lib/dtos/workspaces.dto";
-import { newWorkspaceSchema } from "@/lib/db/schema.zod";
+import { newWorkspaceSchema } from "@/lib/db/zod.schema";
 
 export const workspacesRouter = createTRPCRouter({
 	// ** Get Current Workspace **

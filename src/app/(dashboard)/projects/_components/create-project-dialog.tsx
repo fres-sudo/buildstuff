@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { NewProject } from "@/lib/db/schema.types";
-import { newProjectSchema } from "@/lib/db/schema.zod";
+import { newProjectSchema } from "@/lib/db/zod.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader, Plus } from "lucide-react";
 import { useRef, useState } from "react";

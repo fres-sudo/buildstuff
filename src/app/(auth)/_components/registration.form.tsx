@@ -16,7 +16,8 @@ import { signUp } from "@/lib/api/auth/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { set } from "date-fns";
 import { AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -39,40 +40,53 @@ const RegistrationForm = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<boolean | null>(null);
+	const searchParams = useSearchParams();
 
-	async function onSubmit(data: SignUpSchema) {
+	useEffect(() => {
+		const errorParam = searchParams.get("error");
+		switch (errorParam) {
+			case "unauthorized":
+				setError("Unauthorized");
+				break;
+			case "invalid":
+				setError("Invalid email or password");
+				break;
+			case "verify":
+				setError("Please verify your email address");
+				break;
+			case "email_not_found":
+				setError("Email not found");
+				break;
+			default:
+				break;
+		}
+	}, [searchParams]);
+
+	async function onSubmit(input: SignUpSchema) {
 		setIsLoading(true);
 		setError(null);
 		setSuccess(null);
-		await signUp
-			.email(
-				{
-					name: data.fullName,
-					email: data.email,
-					password: data.password,
-					callbackURL: "/login",
+		const { data, error } = await signUp.email(
+			{
+				name: input.fullName,
+				email: input.email,
+				password: input.password,
+				callbackURL: "/login",
+			},
+			{
+				onError: (ctx) => {
+					// Handle the error
+					if (ctx.error.status === 403) {
+						setError("Please verify your email address");
+					}
+					//you can also show the original error message
+					setError(ctx.error.message);
 				},
-				{
-					onError: (ctx) => {
-						// Handle the error
-						if (ctx.error.status === 403) {
-							setError("Please verify your email address");
-						}
-						//you can also show the original error message
-						setError(ctx.error.message);
-					},
-				}
-			)
-			.catch((error) => {
-				setIsLoading(false);
-				setError("An error occurred while creating your account");
-			})
-			.then((response) => {
-				setIsLoading(false);
-				if (!response) {
-					setSuccess(true);
-				}
-			});
+			}
+		);
+		if (error) {
+			setError(error.message ?? "An error occurred while signing up");
+		}
 	}
 
 	return (

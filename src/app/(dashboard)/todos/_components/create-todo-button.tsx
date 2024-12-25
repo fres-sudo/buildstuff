@@ -37,7 +37,7 @@ import { Input } from "@/components/ui/input";
 
 import { toast } from "@/hooks/use-toast";
 import { NewTodo } from "@/lib/db/schema.types";
-import { newTodoSchema } from "@/lib/db/schema.zod";
+import { newTodoSchema } from "@/lib/db/zod.schema";
 import { priorityItems } from "./create-todo.form";
 import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";

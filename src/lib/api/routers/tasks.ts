@@ -15,7 +15,7 @@ import {
 import { tasks, todos } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
 import { takeFirst } from "@/lib/utils";
-import { newTaskSchema, newTodoSchema } from "@/lib/db/schema.zod";
+import { newTaskSchema, newTodoSchema } from "@/lib/db/zod.schema";
 import { getTodosSchema } from "@/lib/data-table/todos-cached-search";
 import { Todo } from "@/lib/db/schema.types";
 

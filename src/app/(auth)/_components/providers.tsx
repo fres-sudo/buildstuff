@@ -1,7 +1,7 @@
 "use client";
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { signIn } from "@/lib/api/auth/auth-client";
+import { signIn, signUp } from "@/lib/api/auth/auth-client";
 
 const ProvidersComponent = () => {
 	return (
@@ -20,7 +20,6 @@ const ProvidersComponent = () => {
 				<Button
 					variant="outline"
 					onClick={async (e) => {
-						e.preventDefault();
 						await signIn.social({ provider: "github", callbackURL: "/home" });
 					}}>
 					<Icons.gitHub className="mr-2 h-4 w-4" />
@@ -29,7 +28,6 @@ const ProvidersComponent = () => {
 				<Button
 					variant="outline"
 					onClick={async (e) => {
-						e.preventDefault();
 						await signIn.social({ provider: "google", callbackURL: "/home" });
 					}}>
 					<Icons.google className="mr-2 h-4 w-4" />
