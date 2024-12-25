@@ -35,7 +35,6 @@ const CreateWorkspaceForm = () => {
 	async function onCreateWorkspace(data: NewWorkspace) {
 		const result = await createWorkspaceMutation.mutateAsync({
 			...data,
-			logo: getRandomIcon(),
 		});
 		if (!result) {
 			toast.error("Failed to create workspace");
@@ -45,7 +44,7 @@ const CreateWorkspaceForm = () => {
 
 	const onSelectEmojiHandler = (emojiCode: string) => {
 		const emoji = String.fromCodePoint(parseInt(emojiCode, 16));
-		setMessage((prevMessage) => prevMessage + emoji);
+		//setMessage((prevMessage) => prevMessage + emoji);
 	};
 
 	return (
@@ -102,14 +101,22 @@ const CreateWorkspaceForm = () => {
 				</EmojiSelector>
 				<FormField
 					control={createWorkspaceForm.control}
-					name="color"
+					name="emoji"
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
-								<ColorRadio
-									defaultValue="blue"
-									onColorChange={(color) => field.onChange(color)}
-								/>
+								<EmojiSelector
+									id="edit-message-emoji-selector"
+									asChild
+									slide="right"
+									align="end"
+									onSelectedEmoji={onSelectEmojiHandler}>
+									<Button
+										className="w-8 h-8 sm:w-10 sm:h-10"
+										size={"icon"}
+										variant={"ghost"}>
+										<Smile className="w-5 h-5 sm:w-auto sm:h-auto" />
+									</Button>
 							</FormControl>
 							<FormMessage />
 						</FormItem>

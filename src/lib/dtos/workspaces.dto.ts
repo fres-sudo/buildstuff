@@ -10,7 +10,7 @@ export const updateWorkspaceSchema = z.object({
 	id: z.string(),
 	name: z.string().min(3, "The name of the workspace is wequired"),
 	description: z.string().optional(),
-	color: z.string().optional(),
+	emoji: z.string().optional(),
 });
 
 export const addMemberSchema = z.object({

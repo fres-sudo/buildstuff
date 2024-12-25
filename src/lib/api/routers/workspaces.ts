@@ -121,7 +121,7 @@ export const workspacesRouter = createTRPCRouter({
 	update: protectedProcedure
 		.input(updateWorkspaceSchema)
 		.mutation(async ({ ctx, input }) => {
-			const { id, name, description, color } = input;
+			const { id, name, description, emoji } = input;
 			const userId = ctx.session.user.id;
 
 			const workspace = await ctx.db.query.workspaces.findFirst({
@@ -147,7 +147,7 @@ export const workspacesRouter = createTRPCRouter({
 				.set({
 					name,
 					description,
-					color,
+					emoji,
 					updatedAt: new Date(),
 				})
 				.where(eq(workspaces.id, id))
