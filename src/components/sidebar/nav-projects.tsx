@@ -47,7 +47,7 @@ export function NavProjects() {
 			<SidebarMenu>
 				{projects.isLoading && <LoadingSkeleton />}
 				{sortedProjects?.map((item) => (
-					<SidebarMenuItem key={item.name}>
+					<SidebarMenuItem key={item.id}>
 						<SidebarMenuButton asChild>
 							<a
 								href={`/projects/${item.id}`}

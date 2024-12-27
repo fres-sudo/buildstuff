@@ -38,7 +38,7 @@ export default function Page({ children }: any) {
 						<UserPropic />
 					</div>
 				</header>
-				<main className="flex flex-col">{children}</main>
+				<main className="flex flex-col ">{children}</main>
 			</SidebarInset>
 		</SidebarProvider>
 	);

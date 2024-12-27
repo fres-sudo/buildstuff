@@ -26,6 +26,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ProjectSettingsDialog } from "./project-settings-dialog";
 
 const ProjectButtons = ({ project }: { project: any }) => {
 	const updateProjectMutation = api.projects.update.useMutation();
@@ -103,12 +104,16 @@ const ProjectButtons = ({ project }: { project: any }) => {
 					<UserPlus />
 					Invite
 				</Button>
-				<Button
-					size={"sm"}
-					variant={"outline"}>
-					<Settings />
-					Settings
-				</Button>
+				<ProjectSettingsDialog
+					project={project}
+					isAdmin={true}>
+					<Button
+						size={"sm"}
+						variant={"outline"}>
+						<Settings />
+						Settings
+					</Button>
+				</ProjectSettingsDialog>
 			</div>
 			<div className="flex md:hidden">
 				<DropdownMenu>
@@ -153,10 +158,14 @@ const ProjectButtons = ({ project }: { project: any }) => {
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
-							<Settings />
-							Settings
-						</DropdownMenuItem>
+						<ProjectSettingsDialog
+							project={project}
+							isAdmin={true}>
+							<DropdownMenuItem>
+								<Settings />
+								Settings
+							</DropdownMenuItem>
+						</ProjectSettingsDialog>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>

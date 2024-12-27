@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { NewProject } from "@/lib/db/schema.types";
 import { newProjectSchema } from "@/lib/db/zod.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Plus } from "lucide-react";
+import { Loader, Plus, Smile } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Label as LabelType } from "@/lib/db/schema.types";
@@ -36,6 +36,7 @@ import { Separator } from "@radix-ui/react-separator";
 import SelectMultipleMembersDropdown from "@/components/select-multiple-members-dropdowx";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { EmojiSelector } from "@/components/emoji-selector";
 
 const invitationFormSchema = z.object({ token: z.string() });
 type InvitationFormType = z.infer<typeof invitationFormSchema>;
@@ -120,7 +121,11 @@ const CreateProjectDialog = ({
 	return (
 		<Dialog
 			open={open}
-			onOpenChange={setOpen}>
+			onOpenChange={(open) => {
+				createProjectForm.reset();
+				invitationForm.reset();
+				setOpen(open);
+			}}>
 			<Button
 				className={buttonClassname ?? "p-1 m-0 rounded-full h-6 w-6"}
 				variant={buttonVariant ?? "outline"}
@@ -146,23 +151,46 @@ const CreateProjectDialog = ({
 							<form
 								onSubmit={createProjectForm.handleSubmit(onCreateProject)}
 								className="w-full space-y-2">
-								<FormField
-									control={createProjectForm.control}
-									name="name"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Project Name</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="Something really cool"
-													{...field}
-													value={field.value ?? ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+								<div className="flex w-full items-center justify-start gap-2">
+									<FormField
+										control={createProjectForm.control}
+										name="emoji"
+										render={({ field }) => (
+											<FormItem>
+												<FormControl>
+													<EmojiSelector
+														onSelectedEmoji={(value) => field.onChange(value)}>
+														<Button
+															className="w-10 h-10 sm:w-12 sm:h-12 "
+															size={"icon"}
+															variant={"outline"}>
+															<Smile className="w-5 h-5 sm:w-auto sm:h-auto" />
+														</Button>
+													</EmojiSelector>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										control={createProjectForm.control}
+										name="name"
+										render={({ field }) => (
+											<FormItem className="w-full">
+												<FormLabel>Project Name</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="Something really cool"
+														{...field}
+														value={field.value ?? ""}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+
 								<SelectOrCreateLabel
 									onLabelSelect={(labels) => setLabels(labels)}
 								/>

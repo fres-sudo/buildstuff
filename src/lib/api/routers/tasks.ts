@@ -6,18 +6,20 @@ import {
 	count,
 	desc,
 	eq,
+	exists,
 	gt,
 	gte,
 	ilike,
 	inArray,
 	lte,
 } from "drizzle-orm";
-import { tasks, todos } from "@/lib/db/schema";
+import { projectMembers, tasks, todos } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
 import { takeFirst } from "@/lib/utils";
 import { newTaskSchema, newTodoSchema } from "@/lib/db/zod.schema";
 import { getTodosSchema } from "@/lib/data-table/todos-cached-search";
 import { Todo } from "@/lib/db/schema.types";
+import { workspacesRouter } from "./workspaces";
 
 export const tasksRouter = createTRPCRouter({
 	create: protectedProcedure
@@ -94,6 +96,35 @@ export const tasksRouter = createTRPCRouter({
 
 			const pageCount = Math.ceil(total / input.perPage);
 			return { data, pageCount };
+		}),
+	search: protectedProcedure
+		.input(
+			z.object({
+				workspaceId: z.string(),
+				projectId: z.string(),
+				query: z.string(),
+				limit: z.number().default(10),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			return await ctx.db.query.tasks.findMany({
+				where: and(
+					exists(
+						ctx.db
+							.select()
+							.from(projectMembers)
+							.where(
+								and(
+									eq(projectMembers.projectId, input.projectId),
+									eq(projectMembers.userId, ctx.session?.user.id)
+								)
+							)
+					),
+					eq(tasks.assigneeId, ctx.session?.user.id),
+					ilike(tasks.code, `%${input.query}%`)
+				),
+				limit: input.limit,
+			});
 		}),
 	update: protectedProcedure
 		.input(newTaskSchema)

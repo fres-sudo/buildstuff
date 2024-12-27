@@ -13,7 +13,7 @@ import {
 import { TRPCError } from "@trpc/server";
 import { takeFirst, takeFirstOrThrow } from "@/lib/utils";
 import { newProjectSchema, taskSchema } from "@/lib/db/zod.schema";
-import { and, count, eq, exists, gte, lt, lte } from "drizzle-orm";
+import { and, count, eq, exists, gte, ilike, lt, lte } from "drizzle-orm";
 import { randomBytes } from "crypto";
 import { hash } from "bcryptjs";
 import { isBefore } from "date-fns";
@@ -131,7 +131,33 @@ export const projectsRouter = createTRPCRouter({
 				),
 			});
 		}),
-
+	search: protectedProcedure
+		.input(
+			z.object({
+				workspaceId: z.string(),
+				query: z.string(),
+				limit: z.number().default(10),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			return await ctx.db.query.projects.findMany({
+				where: and(
+					exists(
+						ctx.db
+							.select()
+							.from(projectMembers)
+							.where(
+								and(
+									eq(projectMembers.projectId, projects.id),
+									eq(projectMembers.userId, ctx.session?.user.id)
+								)
+							)
+					),
+					ilike(projects.name, `%${input}%`)
+				),
+				limit: input.limit,
+			});
+		}),
 	get: protectedProcedure
 		.input(z.object({ projectId: z.string() }))
 		.query(async ({ ctx, input }) => {
@@ -473,5 +499,21 @@ export const projectsRouter = createTRPCRouter({
 				completedTaskDifference,
 				overdueTaskDifference,
 			};
+		}),
+	delete: protectedProcedure
+		.input(z.object({ projectId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			const project = await ctx.db
+				.delete(projects)
+				.where(eq(projects.id, input.projectId))
+				.returning()
+				.then(takeFirstOrThrow);
+			if (!project) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Project not found",
+				});
+			}
+			return project;
 		}),
 });

@@ -20,6 +20,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import TermsAndCondition from "./terms-and-condition";
 
 const signUpSchema = z.object({
 	email: z.string().email({ message: "Invalid email address" }),
@@ -172,11 +173,9 @@ const RegistrationForm = () => {
 
 				<p className="text-xs font-thin text-center text-muted-foreground">
 					By signing in you will accept out{" "}
-					<a
-						href="/"
-						className="hover:underline">
-						Terms and Conditions
-					</a>
+					<TermsAndCondition>
+						<span className="hover:underline">Terms and Conditions</span>
+					</TermsAndCondition>
 				</p>
 			</form>
 		</Form>

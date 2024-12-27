@@ -146,6 +146,7 @@ export function NavUser() {
 								await signOut({
 									fetchOptions: {
 										onSuccess: () => {
+											localStorage.clear();
 											router.push("/login");
 										},
 									},

@@ -5,6 +5,9 @@ import { workspacesRouter } from "./routers/workspaces";
 import { labelsRouter } from "./routers/labels";
 import { projectsRouter } from "./routers/projects";
 import { tasksRouter } from "./routers/tasks";
+import { an } from "node_modules/better-auth/dist/auth-CfxMSdnJ";
+import { analyticsRouter } from "./routers/analytics";
+import { timeEntriesRouter } from "./routers/timeEntries";
 
 /**
  * This is the primary router for your server.
@@ -18,6 +21,8 @@ export const appRouter = createTRPCRouter({
 	labels: labelsRouter,
 	projects: projectsRouter,
 	tasks: tasksRouter,
+	analytics: analyticsRouter,
+	timeEntries: timeEntriesRouter,
 });
 
 // export type definition of API

@@ -51,7 +51,7 @@ export default function DeleteEntityDialog({
 						</DialogTitle>
 						<DialogDescription className="sm:text-center">
 							This action cannot be undone. To confirm, please enter the{" "}
-							{entityType} name{" "}
+							{entityType.toLowerCase()} name{" "}
 							<span className="text-foreground">{entityName}</span>.
 						</DialogDescription>
 					</DialogHeader>

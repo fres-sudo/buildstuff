@@ -17,7 +17,7 @@ const ProjectPage = async ({
 		projectId: string;
 	};
 }) => {
-	const { projectId } = params;
+	const { projectId } = await params;
 	const project = await api.projects.get({
 		projectId,
 	});
