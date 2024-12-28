@@ -37,6 +37,7 @@ import SelectMultipleMembersDropdown from "@/components/select-multiple-members-
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { EmojiSelector } from "@/components/emoji-selector";
+import LoadingIcon from "@/components/loading-icon";
 
 const invitationFormSchema = z.object({ token: z.string() });
 type InvitationFormType = z.infer<typeof invitationFormSchema>;
@@ -209,9 +210,7 @@ const CreateProjectDialog = ({
 								<Button
 									type="submit"
 									className="w-full mt-4">
-									{createProjectMutation.isPending && (
-										<Loader className="mr-2 h-4 w-4 animate-spin" />
-									)}
+									{createProjectMutation.isPending && <LoadingIcon />}
 									Create Project
 								</Button>
 							</form>
@@ -242,9 +241,7 @@ const CreateProjectDialog = ({
 								<Button
 									type="submit"
 									className="w-full mt-2">
-									{joinProjectMutation.isPending && (
-										<Loader className="mr-2 h-4 w-4 animate-spin" />
-									)}
+									{joinProjectMutation.isPending && <LoadingIcon />}
 									Join Project
 								</Button>
 							</form>

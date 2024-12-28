@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/drawer";
 import { api } from "@/trpc/react";
 import { toast } from "@/hooks/use-toast";
+import LoadingIcon from "@/components/loading-icon";
 
 interface DeleteTodosDialogProps
 	extends React.ComponentPropsWithoutRef<typeof Dialog> {
@@ -97,12 +98,7 @@ export function DeleteTodosDialog({
 							variant="destructive"
 							onClick={onDelete}
 							disabled={isDeletePending}>
-							{isDeletePending && (
-								<Loader
-									className="mr-2 size-4 animate-spin"
-									aria-hidden="true"
-								/>
-							)}
+							{isDeletePending && <LoadingIcon />}
 							Delete
 						</Button>
 					</DialogFooter>
@@ -144,12 +140,7 @@ export function DeleteTodosDialog({
 						variant="destructive"
 						onClick={onDelete}
 						disabled={isDeletePending}>
-						{isDeletePending && (
-							<Loader
-								className="mr-2 size-4 animate-spin"
-								aria-hidden="true"
-							/>
-						)}
+						{isDeletePending && <LoadingIcon />}
 						Delete
 					</Button>
 				</DrawerFooter>

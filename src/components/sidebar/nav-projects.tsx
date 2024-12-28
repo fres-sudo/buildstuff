@@ -41,7 +41,11 @@ export function NavProjects() {
 	return (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 			<SidebarGroupLabel className="flex justify-between">
-				Projects
+				<a
+					className="hover:underline"
+					href="/projects">
+					Projects
+				</a>
 				<CreateProjectDialog onProjectCreated={(_) => projects.refetch()} />
 			</SidebarGroupLabel>
 			<SidebarMenu>

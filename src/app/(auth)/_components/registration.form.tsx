@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import TermsAndCondition from "./terms-and-condition";
+import LoadingIcon from "@/components/loading-icon";
 
 const signUpSchema = z.object({
 	email: z.string().email({ message: "Invalid email address" }),
@@ -167,7 +168,7 @@ const RegistrationForm = () => {
 				<Button
 					className="w-full mt-4 mb-2"
 					disabled={isLoading}>
-					{isLoading && <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />}
+					{isLoading && <LoadingIcon />}
 					Sign Up
 				</Button>
 

@@ -16,15 +16,6 @@ export default function TimeSheetPage() {
 	return (
 		<PageContainer>
 			<div className="flex flex-col space-y-4">
-				<div className="flex items-center justify-between">
-					<h2 className="text-2xl font-bold tracking-tight">
-						Timesheet ⏰
-						<p className="text-sm text-muted-foreground font-thin">
-							Track and manage your work hours efficiently. Log your time
-							entries and keep a clear record of your daily activities.
-						</p>
-					</h2>
-				</div>
 				<TimeChart />
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-2">
 					<Card className="md:col-span-2">

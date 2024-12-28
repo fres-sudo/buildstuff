@@ -21,6 +21,7 @@ import ProvidersComponent from "./providers";
 import { signIn, useSession } from "@/lib/api/auth/auth-client";
 import { useSearchParams } from "next/navigation";
 import { se } from "date-fns/locale";
+import LoadingIcon from "@/components/loading-icon";
 
 const loginSchema = z.object({
 	email: z.string().email(),
@@ -137,9 +138,7 @@ export function LoginForm() {
 					<Button
 						disabled={isLoading && !isPending}
 						className="w-full">
-						{isLoading && !isPending && (
-							<Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-						)}
+						{isLoading && !isPending && <LoadingIcon />}
 						Login
 					</Button>
 				</form>

@@ -31,6 +31,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { newWorkspaceSchema } from "@/lib/db/zod.schema";
 import { Textarea } from "../ui/textarea";
 import { set } from "date-fns";
+import LoadingIcon from "../loading-icon";
 
 const WorkSpaceDialog = () => {
 	const createWorkspaceMutation = api.workspaces.create.useMutation();
@@ -136,9 +137,7 @@ const WorkSpaceDialog = () => {
 								type="submit"
 								className="w-full"
 								disabled={createWorkspaceMutation.isPending}>
-								{createWorkspaceMutation.isPending && (
-									<Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-								)}
+								{createWorkspaceMutation.isPending && <LoadingIcon />}
 								Join Workspace
 							</Button>
 						</form>

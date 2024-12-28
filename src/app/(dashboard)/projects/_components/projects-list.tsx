@@ -28,16 +28,6 @@ import { Progress } from "@/components/ui/progress";
 import { Project, Task } from "@/lib/db/schema.types";
 
 const ProjectsList = ({ projects }: { projects: any[] }) => {
-	if (!projects?.length) {
-		return (
-			<Card className="w-full">
-				<CardContent className="flex items-center justify-center h-40">
-					<p className="text-muted-foreground">No projects found</p>
-				</CardContent>
-			</Card>
-		);
-	}
-
 	const getTaskProgress = (tasks: Task[]) => {
 		if (!tasks || !tasks.length) return 0;
 		const completed = tasks.filter(
@@ -46,10 +36,14 @@ const ProjectsList = ({ projects }: { projects: any[] }) => {
 		return Math.round((completed / tasks.length) * 100);
 	};
 
+	const sortedProjects = projects.sort(
+		(a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+	);
+
 	return (
-		<div className="space-y-4  mx-4">
+		<div className="space-y-4  mt-4">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-				{projects.map((project) => {
+				{sortedProjects.map((project) => {
 					const progress = getTaskProgress(project.tasks);
 
 					return (
@@ -59,7 +53,6 @@ const ProjectsList = ({ projects }: { projects: any[] }) => {
 							{project.pinned && (
 								<Pin className="absolute top-2 right-2 h-4 w-4 text-yellow-500" />
 							)}
-
 							<CardHeader className="pb-2">
 								<div className="flex justify-between items-start">
 									<div>
@@ -77,7 +70,13 @@ const ProjectsList = ({ projects }: { projects: any[] }) => {
 												</Badge>
 											)}
 										</div>
-										<CardTitle className="mt-2">{project.name}</CardTitle>
+										<CardTitle className="mt-2">
+											<a
+												className="hover:underline"
+												href={`/projects/${project.id}`}>
+												{project.name}
+											</a>
+										</CardTitle>
 									</div>
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>

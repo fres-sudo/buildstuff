@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Icons } from "@/components/icons";
 import { useState } from "react";
+import LoadingIcon from "../loading-icon";
 
 interface NavItem {
 	title: string;
@@ -53,7 +54,7 @@ export function DashboardNav({ items }: DashboardNavProps) {
 						className="lg:hidden"
 						size="sm"
 						onClick={() => setOpen(true)}>
-						<Icons.spinner className="h-5 w-5" />
+						<LoadingIcon />
 					</Button>
 				</SheetTrigger>
 				<SheetContent

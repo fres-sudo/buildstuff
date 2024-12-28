@@ -15,6 +15,7 @@ import { api } from "@/trpc/react";
 import { Loader, Smile } from "lucide-react";
 import { toast } from "sonner";
 import { EmojiSelector } from "../emoji-selector";
+import LoadingIcon from "../loading-icon";
 
 const CreateWorkspaceForm = () => {
 	const createWorkspaceMutation = api.workspaces.create.useMutation();
@@ -110,12 +111,7 @@ const CreateWorkspaceForm = () => {
 			<Button
 				className="mt-4 w-full"
 				type="submit">
-				{createWorkspaceMutation.isPending && (
-					<Loader
-						className="mr-2 size-4 animate-spin"
-						aria-hidden="true"
-					/>
-				)}
+				{createWorkspaceMutation.isPending && <LoadingIcon />}
 				{createWorkspaceMutation.isPending
 					? "Creating Workspace"
 					: "Create Workspace"}

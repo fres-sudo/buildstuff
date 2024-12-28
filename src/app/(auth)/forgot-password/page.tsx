@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import LoadingIcon from "@/components/loading-icon";
 
 const resetPassSchema = z.object({
 	email: z.string().email(),
@@ -87,9 +88,7 @@ export default function ResetPasswordPage() {
 						<Button
 							disabled={isLoading}
 							className="w-full mt-4">
-							{isLoading && (
-								<Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-							)}
+							{isLoading && <LoadingIcon />}
 							Reset Password
 						</Button>
 					</form>

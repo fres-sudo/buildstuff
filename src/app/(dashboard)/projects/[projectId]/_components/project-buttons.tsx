@@ -9,7 +9,6 @@ import { api } from "@/trpc/react";
 import {
 	Archive,
 	ArchiveX,
-	Loader,
 	Menu,
 	Pin,
 	PinOff,
@@ -27,6 +26,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ProjectSettingsDialog } from "./project-settings-dialog";
+import LoadingIcon from "@/components/loading-icon";
 
 const ProjectButtons = ({ project }: { project: any }) => {
 	const updateProjectMutation = api.projects.update.useMutation();
@@ -61,7 +61,7 @@ const ProjectButtons = ({ project }: { project: any }) => {
 							size={"icon"}
 							variant={"outline"}>
 							{updateProjectMutation.isPending ? (
-								<Loader />
+								<LoadingIcon />
 							) : project.archived ? (
 								<ArchiveX />
 							) : (
@@ -88,7 +88,7 @@ const ProjectButtons = ({ project }: { project: any }) => {
 							size={"icon"}
 							variant={"outline"}>
 							{updateProjectMutation.isPending ? (
-								<Loader />
+								<LoadingIcon />
 							) : project.pinned ? (
 								<PinOff />
 							) : (
@@ -131,7 +131,7 @@ const ProjectButtons = ({ project }: { project: any }) => {
 						<DropdownMenuGroup>
 							<DropdownMenuItem>
 								{updateProjectMutation.isPending ? (
-									<Loader />
+									<LoadingIcon />
 								) : project.archived ? (
 									<ArchiveX />
 								) : (
@@ -144,7 +144,7 @@ const ProjectButtons = ({ project }: { project: any }) => {
 						<DropdownMenuGroup>
 							<DropdownMenuItem>
 								{updateProjectMutation.isPending ? (
-									<Loader />
+									<LoadingIcon />
 								) : project.pinned ? (
 									<PinOff />
 								) : (

@@ -24,6 +24,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import SelectWithIcons from "@/components/ui/select-with-icons";
 import { Icons } from "@/components/icons";
+import LoadingIcon from "@/components/loading-icon";
 interface CreateTodoFormProps {
 	onSuccess?: () => void;
 }
@@ -50,8 +51,6 @@ const CreateTodoForm = ({ onSuccess }: CreateTodoFormProps) => {
 	const handleCreateTodo = async (newTodo: CreateTodoSchema) => {
 		if (!newTodo) return;
 		await createTodoMutation.mutateAsync({
-			name: newTodo.name,
-			description: newTodo.description,
 			dueDate: newTodo.dueDate,
 			priority: newTodo.priority,
 		});
@@ -129,7 +128,7 @@ const CreateTodoForm = ({ onSuccess }: CreateTodoFormProps) => {
 					/>
 					<Button disabled={createTodoMutation.isPending}>
 						{createTodoMutation.isPending ? (
-							<Icons.spinner className="h-4 w-4 animate-spin" />
+							<LoadingIcon />
 						) : (
 							<Icons.add className="h-4 w-4" />
 						)}

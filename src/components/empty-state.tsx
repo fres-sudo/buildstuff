@@ -12,6 +12,7 @@ interface EmptyStateProps {
 		onClick: () => void;
 	};
 	className?: string;
+	children?: React.ReactNode;
 }
 
 export function EmptyState({
@@ -20,12 +21,13 @@ export function EmptyState({
 	icons = [],
 	action,
 	className,
+	children,
 }: EmptyStateProps) {
 	return (
 		<div
 			className={cn(
 				"bg-background border-border hover:border-border/80 text-center",
-				"border-2 border-dashed rounded-xl p-14 w-full max-w-[620px]",
+				"border-2 border-dashed rounded-xl p-14 w-full ",
 				"group hover:bg-muted/50 transition duration-500 hover:duration-200",
 				className
 			)}>
@@ -64,6 +66,9 @@ export function EmptyState({
 			<p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
 				{description}
 			</p>
+			<div className="flex flex-col items-center justify-center mt-6">
+				{children}
+			</div>
 			{action && (
 				<Button
 					onClick={action.onClick}

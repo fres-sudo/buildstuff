@@ -32,6 +32,7 @@ import { Todo } from "@/lib/db/schema.types";
 import { toast } from "@/hooks/use-toast";
 import { api } from "@/trpc/react";
 import { todos } from "@/lib/db/schema";
+import LoadingIcon from "@/components/loading-icon";
 
 interface TodosTableFloatingBarProps {
 	table: Table<Todo>;
@@ -126,10 +127,7 @@ export function TodosTableFloatingBar({ table }: TodosTableFloatingBarProps) {
 												className="size-7 border data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
 												disabled={isPending}>
 												{isPending && action === "update-status" ? (
-													<Loader
-														className="size-3.5 animate-spin"
-														aria-hidden="true"
-													/>
+													<LoadingIcon />
 												) : (
 													<CheckCircle2
 														className="size-3.5"
@@ -180,10 +178,7 @@ export function TodosTableFloatingBar({ table }: TodosTableFloatingBarProps) {
 												className="size-7 border data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
 												disabled={isPending}>
 												{isPending && action === "update-priority" ? (
-													<Loader
-														className="size-3.5 animate-spin"
-														aria-hidden="true"
-													/>
+													<LoadingIcon />
 												) : (
 													<ArrowUp
 														className="size-3.5"
@@ -228,10 +223,7 @@ export function TodosTableFloatingBar({ table }: TodosTableFloatingBarProps) {
 										}}
 										disabled={isPending}>
 										{isPending && action === "export" ? (
-											<Loader
-												className="size-3.5 animate-spin"
-												aria-hidden="true"
-											/>
+											<LoadingIcon />
 										) : (
 											<Download
 												className="size-3.5"
@@ -268,10 +260,7 @@ export function TodosTableFloatingBar({ table }: TodosTableFloatingBarProps) {
 										}}
 										disabled={isPending}>
 										{isPending && action === "delete" ? (
-											<Loader
-												className="size-3.5 animate-spin"
-												aria-hidden="true"
-											/>
+											<LoadingIcon />
 										) : (
 											<Trash2
 												className="size-3.5"

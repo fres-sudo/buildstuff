@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import SelectMultipleMembersDropdown from "@/components/select-multiple-members-dropdowx";
 import SelectOrCreateLabel from "@/components/select-or-create-label";
 import SelectSingleMemberDropdown from "@/components/select-single-member-dropdown";
+import LoadingIcon from "@/components/loading-icon";
 
 interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {}
@@ -148,12 +149,7 @@ export function CreateTaskSheet({ ...props }: UpdateTaskSheetProps) {
 								</Button>
 							</SheetClose>
 							<Button disabled={isUpdatePending}>
-								{isUpdatePending && (
-									<Loader
-										className="mr-2 size-4 animate-spin"
-										aria-hidden="true"
-									/>
-								)}
+								{isUpdatePending && <LoadingIcon />}
 								Save
 							</Button>
 						</SheetFooter>

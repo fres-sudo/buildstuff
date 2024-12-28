@@ -38,6 +38,7 @@ import { toast } from "@/hooks/use-toast";
 import { NewTodo, Todo, Label } from "@/lib/db/schema.types";
 import { newTodoSchema, newLabelSchema } from "@/lib/db/zod.schema";
 import { priorityItems } from "./create-todo.form";
+import LoadingIcon from "@/components/loading-icon";
 
 interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {
@@ -228,12 +229,7 @@ export function UpdateTaskSheet({
 								</Button>
 							</SheetClose>
 							<Button disabled={isUpdatePending}>
-								{isUpdatePending && (
-									<Loader
-										className="mr-2 size-4 animate-spin"
-										aria-hidden="true"
-									/>
-								)}
+								{isUpdatePending && <LoadingIcon />}
 								Save
 							</Button>
 						</SheetFooter>

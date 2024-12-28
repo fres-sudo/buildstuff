@@ -42,6 +42,7 @@ import { priorityItems } from "./create-todo.form";
 import { Icons } from "@/components/icons";
 import { api } from "@/trpc/react";
 import SelectWithIcons from "@/components/ui/select-with-icons";
+import LoadingIcon from "@/components/loading-icon";
 
 interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {}
@@ -138,12 +139,7 @@ export function CreateTodoSheet({ ...props }: UpdateTaskSheetProps) {
 								</Button>
 							</SheetClose>
 							<Button disabled={isUpdatePending}>
-								{isUpdatePending && (
-									<Loader
-										className="mr-2 size-4 animate-spin"
-										aria-hidden="true"
-									/>
-								)}
+								{isUpdatePending && <LoadingIcon />}
 								Save
 							</Button>
 						</SheetFooter>

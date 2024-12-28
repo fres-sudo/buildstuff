@@ -37,6 +37,7 @@ import { Loader2, Settings } from "lucide-react";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import DeleteEntityDialog from "@/components/delete-entity-confirmation-dialog";
+import LoadingIcon from "@/components/loading-icon";
 
 const projectSettingsSchema = z.object({
 	name: z.string().min(1, "Project name is required"),
@@ -207,8 +208,13 @@ export function ProjectSettingsDialog({
 							<DeleteEntityDialog
 								entityName={project.name}
 								entityType={"Project"}
-								onDelete={() => {}}>
-								<Button variant={"destructive"}>Delete project</Button>
+								onDelete={handleDeleteProject}>
+								{deleteProject.isPending && <LoadingIcon />}
+								<Button
+									disabled={deleteProject.isPending}
+									variant={"destructive"}>
+									Delete project
+								</Button>
 							</DeleteEntityDialog>
 							<Button type="submit">Save Changes</Button>
 						</DialogFooter>
