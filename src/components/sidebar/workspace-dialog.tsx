@@ -4,7 +4,6 @@ import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
-	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
@@ -22,7 +21,6 @@ import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { useState } from "react";
-import { Icons } from "../icons";
 import CreateWorkspaceForm from "./create-workspace.form";
 import { api } from "@/trpc/react";
 import { NewWorkspace } from "@/lib/db/schema.types";
@@ -30,7 +28,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { newWorkspaceSchema } from "@/lib/db/zod.schema";
 import { Textarea } from "../ui/textarea";
-import { set } from "date-fns";
 import LoadingIcon from "../loading-icon";
 
 const WorkSpaceDialog = () => {
@@ -43,25 +40,18 @@ const WorkSpaceDialog = () => {
 
 	async function onCreateWorkspace(data: NewWorkspace) {
 		await createWorkspaceMutation.mutateAsync(data);
-		setOpen(false);
-		form.reset();
 	}
+
 	function onJoinWorkspace() {}
 
 	return (
 		<Dialog
 			open={open}
 			onOpenChange={setOpen}>
-			<DialogTrigger
-				asChild
-				onClick={() => setOpen(!open)}>
-				<div className="gap-2 p-2 flex">
-					<Button
-						className="w-full flex size-6"
-						variant={"ghost"}>
-						<Plus className="size-4" />
-						Add work space
-					</Button>
+			<DialogTrigger asChild>
+				<div className="gap-2 items-center m-2 flex">
+					<Plus className="size-4" />
+					<p className="text-sm ">Add Workspace</p>
 				</div>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-2xl">
@@ -80,46 +70,6 @@ const WorkSpaceDialog = () => {
 						<CreateWorkspaceForm />
 					</TabsContent>
 					<TabsContent value="join">
-						<Form {...form}>
-							<form
-								onSubmit={form.handleSubmit(onCreateWorkspace)}
-								className="space-y-2 w-full">
-								<FormField
-									control={form.control}
-									name="name"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Email</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="email@example.com"
-													{...field}
-													value={field.value ?? ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="description"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Email</FormLabel>
-											<FormControl>
-												<Textarea
-													placeholder="email@example.com"
-													{...field}
-													value={field.value ?? ""}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</form>
-						</Form>
 						<form
 							onSubmit={onJoinWorkspace}
 							className="space-y-4 mt-4">

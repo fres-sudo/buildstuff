@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Icons } from "@/components/icons";
+// Removed unused import
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -20,8 +20,9 @@ import { AlertCircle } from "lucide-react";
 import ProvidersComponent from "./providers";
 import { signIn, useSession } from "@/lib/api/auth/auth-client";
 import { useSearchParams } from "next/navigation";
-import { se } from "date-fns/locale";
+// Removed unused import
 import LoadingIcon from "@/components/loading-icon";
+import { api } from "@/trpc/react";
 
 const loginSchema = z.object({
 	email: z.string().email(),
@@ -63,7 +64,7 @@ export function LoginForm() {
 	async function onSubmit(input: LoginScheme) {
 		setIsLoading(true);
 		setError(null);
-		const { data, error } = await signIn.email(
+		const { error } = await signIn.email(
 			{
 				email: input.email,
 				password: input.password,
@@ -99,7 +100,8 @@ export function LoginForm() {
 								<FormControl>
 									<Input
 										placeholder="email@example.com"
-										{...field}
+										value={field.value || ""}
+										onChange={field.onChange}
 									/>
 								</FormControl>
 								<FormMessage />
@@ -116,7 +118,8 @@ export function LoginForm() {
 									<Input
 										type="password"
 										placeholder="••••••••"
-										{...field}
+										value={field.value || ""}
+										onChange={field.onChange}
 									/>
 								</FormControl>
 								<FormMessage />

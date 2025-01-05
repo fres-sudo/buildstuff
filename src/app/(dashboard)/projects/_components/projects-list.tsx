@@ -1,21 +1,7 @@
 import React from "react";
 import { format } from "date-fns";
-import {
-	MoreHorizontal,
-	Pin,
-	Archive,
-	Users,
-	Clock,
-	Tag,
-	CheckSquare,
-} from "lucide-react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { MoreHorizontal, Pin, Users, Clock, CheckSquare } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -41,7 +27,7 @@ const ProjectsList = ({ projects }: { projects: any[] }) => {
 	);
 
 	return (
-		<div className="space-y-4  mt-4">
+		<div className="space-y-4 mt-4">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 				{sortedProjects.map((project) => {
 					const progress = getTaskProgress(project.tasks);
@@ -50,9 +36,6 @@ const ProjectsList = ({ projects }: { projects: any[] }) => {
 						<Card
 							key={project.id}
 							className="group relative w-full">
-							{project.pinned && (
-								<Pin className="absolute top-2 right-2 h-4 w-4 text-yellow-500" />
-							)}
 							<CardHeader className="pb-2">
 								<div className="flex justify-between items-start">
 									<div>
@@ -68,6 +51,9 @@ const ProjectsList = ({ projects }: { projects: any[] }) => {
 													className="text-xs">
 													Archived
 												</Badge>
+											)}
+											{project.pinned && (
+												<Pin className="h-4 w-4 text-yellow-500" />
 											)}
 										</div>
 										<CardTitle className="mt-2">

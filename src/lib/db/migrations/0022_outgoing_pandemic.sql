@@ -1,0 +1,2 @@
+ALTER TABLE "session" ADD COLUMN "workspaceId" text;--> statement-breakpoint
+ALTER TABLE "session" ADD CONSTRAINT "session_workspaceId_workspaces_id_fk" FOREIGN KEY ("workspaceId") REFERENCES "public"."workspaces"("id") ON DELETE no action ON UPDATE no action;

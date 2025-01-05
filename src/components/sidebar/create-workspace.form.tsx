@@ -3,6 +3,7 @@ import { useState, FormEvent } from "react";
 import {
 	Form,
 	FormControl,
+	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
@@ -16,107 +17,112 @@ import { Loader, Smile } from "lucide-react";
 import { toast } from "sonner";
 import { EmojiSelector } from "../emoji-selector";
 import LoadingIcon from "../loading-icon";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { newWorkspaceSchema } from "@/lib/db/zod.schema";
+import { on } from "events";
+import { useChangeCodeToEmoji } from "@/hooks/use-change-code-to-emoji";
 
 const CreateWorkspaceForm = () => {
 	const createWorkspaceMutation = api.workspaces.create.useMutation();
-	const [formData, setFormData] = useState<NewWorkspace>({
-		name: "",
-		description: "",
-		emoji: "",
+
+	const form = useForm<NewWorkspace>({
+		resolver: zodResolver(newWorkspaceSchema),
 	});
 
-	const handleInputChange = (
-		e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-	) => {
-		const { name, value } = e.target;
-		setFormData((prev) => ({
-			...prev,
-			[name]: value,
-		}));
-	};
-
-	const onSelectEmojiHandler = (emojiCode: string) => {
-		const emoji = String.fromCodePoint(parseInt(emojiCode, 16));
-		setFormData((prev) => ({
-			...prev,
-			emoji: emoji,
-		}));
-	};
-
-	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+	async function onCreateWorkspace(data: NewWorkspace) {
 		try {
-			const result = await createWorkspaceMutation.mutateAsync({
-				...formData,
-			});
+			const result = await createWorkspaceMutation.mutateAsync(data);
 			if (!result) {
 				toast.error("Failed to create workspace");
 			}
-			setFormData({ name: "", description: "", emoji: "" });
+			form.reset();
 		} catch (error) {
 			toast.error("Failed to create workspace");
 		}
+	}
+
+	const onSelectEmojiHandler = (emojiCode: string) => {
+		const emoji = String.fromCodePoint(parseInt(emojiCode, 16));
+		form.setValue("emoji", emoji);
 	};
 
 	return (
-		<form
-			onSubmit={handleSubmit}
-			className="space-y-4">
-			<FormItem>
-				<FormLabel>Name</FormLabel>
-				<FormControl>
-					<Input
+		<Form {...form}>
+			<form
+				onSubmit={form.handleSubmit(onCreateWorkspace)}
+				className="space-y-4">
+				<div className="flex w-full gap-2 items-center justify-center mt-4">
+					<FormField
+						control={form.control}
+						name="emoji"
+						render={({ field }) => (
+							<FormItem className="border rounded-lg">
+								<FormControl>
+									<EmojiSelector
+										id="edit-message-emoji-selector"
+										asChild
+										slide="right"
+										align="end"
+										onSelectedEmoji={onSelectEmojiHandler}>
+										<Button
+											className="w-8 h-8 sm:w-10 sm:h-10 text-xl"
+											size={"icon"}
+											variant={"ghost"}>
+											{form.getValues().emoji ?? "✳️"}
+										</Button>
+									</EmojiSelector>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
 						name="name"
-						placeholder="Workspace name"
-						value={formData.name}
-						onChange={handleInputChange}
+						render={({ field }) => (
+							<FormItem className="w-full">
+								<FormControl>
+									<Input
+										className="w-full"
+										placeholder="Workspace name"
+										{...field}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
 					/>
-				</FormControl>
-				<FormMessage />
-			</FormItem>
+				</div>
 
-			<FormItem>
-				<FormLabel>Description</FormLabel>
-				<FormControl>
-					<Textarea
-						name="description"
-						placeholder="Tell us a little bit about your workspace"
-						className="resize-none"
-						value={formData.description ?? ""}
-						onChange={handleInputChange}
-					/>
-				</FormControl>
-				<FormMessage />
-			</FormItem>
+				<FormField
+					control={form.control}
+					name="description"
+					render={({ field }) => (
+						<FormItem>
+							<FormControl>
+								<Textarea
+									placeholder="Tell us a little bit about your workspace"
+									className="resize-none"
+									{...field}
+									value={field.value ?? ""}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
 
-			<FormItem>
-				<FormControl>
-					<EmojiSelector
-						id="edit-message-emoji-selector"
-						asChild
-						slide="right"
-						align="end"
-						onSelectedEmoji={onSelectEmojiHandler}>
-						<Button
-							className="w-8 h-8 sm:w-10 sm:h-10"
-							size={"icon"}
-							variant={"ghost"}>
-							<Smile className="w-5 h-5 sm:w-auto sm:h-auto" />
-						</Button>
-					</EmojiSelector>
-				</FormControl>
-				<FormMessage />
-			</FormItem>
-
-			<Button
-				className="mt-4 w-full"
-				type="submit">
-				{createWorkspaceMutation.isPending && <LoadingIcon />}
-				{createWorkspaceMutation.isPending
-					? "Creating Workspace"
-					: "Create Workspace"}
-			</Button>
-		</form>
+				<Button
+					className="mt-4 w-full"
+					type="submit">
+					{createWorkspaceMutation.isPending && <LoadingIcon />}
+					{createWorkspaceMutation.isPending
+						? "Creating Workspace"
+						: "Create Workspace"}
+				</Button>
+			</form>
+		</Form>
 	);
 };
 

@@ -112,7 +112,7 @@ const MembersTable: React.FC<MembersTableProps> = ({
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-4 mb-2">
 			<div className="flex flex-col sm:flex-row justify-between gap-4">
 				<div className="flex items-center gap-2 flex-1">
 					<Search className="h-4 w-4 text-muted-foreground" />

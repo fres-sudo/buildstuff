@@ -113,6 +113,11 @@ const CreateProjectDialog = ({
 		createProjectForm.reset();
 	}
 
+	const onSelectEmojiHandler = (emojiCode: string) => {
+		const emoji = String.fromCodePoint(parseInt(emojiCode, 16));
+		createProjectForm.setValue("emoji", emoji);
+	};
+
 	async function onJoinProject(data: InvitationFormType) {
 		await joinProjectMutation.mutateAsync({
 			token: data.token,
@@ -157,15 +162,19 @@ const CreateProjectDialog = ({
 										control={createProjectForm.control}
 										name="emoji"
 										render={({ field }) => (
-											<FormItem>
+											<FormItem className="border rounded-lg">
 												<FormControl>
 													<EmojiSelector
-														onSelectedEmoji={(value) => field.onChange(value)}>
+														id="edit-message-emoji-selector"
+														asChild
+														slide="right"
+														align="end"
+														onSelectedEmoji={onSelectEmojiHandler}>
 														<Button
-															className="w-10 h-10 sm:w-12 sm:h-12 "
+															className="w-8 h-8 sm:w-10 sm:h-10 text-xl"
 															size={"icon"}
-															variant={"outline"}>
-															<Smile className="w-5 h-5 sm:w-auto sm:h-auto" />
+															variant={"ghost"}>
+															{createProjectForm.getValues().emoji ?? "✳️"}
 														</Button>
 													</EmojiSelector>
 												</FormControl>

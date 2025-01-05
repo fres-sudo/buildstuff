@@ -1,13 +1,13 @@
 import { createAuthClient } from "better-auth/react";
-import { env } from "@/env";
 
 export const {
-	signIn,
-	signUp,
-	forgetPassword,
-	resetPassword,
-	signOut,
-	useSession,
+  signIn,
+  signUp,
+  forgetPassword,
+  resetPassword,
+  signOut,
+  useSession,
+  verifyEmail,
 } = createAuthClient({
-	baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:3000",
 });

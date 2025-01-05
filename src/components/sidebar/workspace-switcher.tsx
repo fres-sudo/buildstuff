@@ -18,12 +18,10 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { BuildStuffIcon, BuildStuffLogo } from "../logo";
-import Image from "next/image";
 import { Separator } from "../ui/separator";
 import WorkSpaceDialog from "./workspace-dialog";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { api } from "@/trpc/react";
-import { getIcon } from "../random-icons";
 
 export function WorkSpaceSwitcher() {
 	const { isMobile } = useSidebar();
@@ -45,9 +43,8 @@ export function WorkSpaceSwitcher() {
 						<SidebarMenuButton
 							size="lg"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-black">
-								{currentWorkspace?.name.charAt(0) || "W"}
-								{/* {currentWorkspace?.logo && <currentWorkspace.logo />} */}
+							<div className="flex aspect-square size-8 text-xl items-center justify-center rounded-lg border p-2 text-black">
+								{currentWorkspace?.emoji || "🏠"}
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight ">
 								<span className="truncate font-semibold">
@@ -81,7 +78,9 @@ export function WorkSpaceSwitcher() {
 										if (workSpace) setCurrentWorkspace(workSpace);
 									}}
 									className="gap-2 p-2">
-									<div className="flex size-6 items-center justify-center rounded-sm border"></div>
+									<div className="flex size-6 items-center justify-center rounded-sm border text-xs p-2">
+										{workSpace?.emoji ?? "🏠"}
+									</div>
 									{workSpace?.name}
 									<DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
 								</DropdownMenuItem>

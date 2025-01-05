@@ -10,10 +10,11 @@ import TimeSpentChart from "./components/TimeSpentChart";
 import { api } from "@/trpc/server";
 import { TaskDistributionChart } from "./components/TaskDistributionChart";
 import PageContainer from "@/components/layout/page-container";
+import { a } from "node_modules/better-auth/dist/auth-CfxMSdnJ";
+import { PageTitle } from "./components/title";
 
 export default async function AnalyticsPage() {
 	const [
-		currentWorkspace,
 		projectCompletionData,
 		memberProductivityData,
 		upcomingDeadlinesData,
@@ -21,7 +22,6 @@ export default async function AnalyticsPage() {
 		taskDistributionData,
 		timeSpentData,
 	] = await Promise.all([
-		api.workspaces.getCurrent(),
 		api.analytics.getProjectCompletion(),
 		api.analytics.getMemberProductivity(),
 		api.analytics.getUpcomingDeadlines(),
@@ -34,17 +34,8 @@ export default async function AnalyticsPage() {
 		<PageContainer>
 			<div className="flex flex-col space-y-4">
 				<Suspense fallback={<Skeleton className="h-8 w-[300px]" />}>
-					<h2 className="text-2xl font-bold tracking-tight">
-						<span className="font-normal">Analytics for:</span>{" "}
-						{currentWorkspace?.name} 📊
-						<p className="text-sm text-muted-foreground font-thin">
-							Get comprehensive insights into your workspace performance with
-							real-time analytics, project progress tracking, and team
-							productivity metrics at a glance.
-						</p>
-					</h2>
+					<PageTitle />
 				</Suspense>
-
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 					<Suspense fallback={<ChartSkeleton />}>
 						<ProjectCompletionChart data={projectCompletionData} />

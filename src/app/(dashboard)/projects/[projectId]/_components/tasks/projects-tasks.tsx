@@ -10,8 +10,13 @@ import { useState } from "react";
 import { addDays } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { CreateTaskSheet } from "./create-task-sheet";
+import { RouterOutputs } from "@/trpc/react";
 
-const ProjectTasks = () => {
+export type TasksProps = NonNullable<
+	Awaited<RouterOutputs["projects"]["get"]>
+>["tasks"];
+
+const ProjectTasks = ({ tasks }: { tasks: TasksProps }) => {
 	const [date, setDate] = useState<DateRange | undefined>({
 		from: addDays(new Date(), -30),
 		to: new Date(),
@@ -20,14 +25,13 @@ const ProjectTasks = () => {
 		<>
 			<Tabs defaultValue="table">
 				<div className="flex justify-between w-full">
-					<TabsList className="grid  grid-cols-3 w-56">
+					<TabsList className="grid grid-cols-3 w-56">
 						<TabsTrigger value="table">Table</TabsTrigger>
 						<TabsTrigger value="kanban">Kanban</TabsTrigger>
 						<TabsTrigger value="calendar">Calendar</TabsTrigger>
 					</TabsList>
 					<div className="flex gap-x-2">
 						<CalendarDateRangePicker
-							className="w-56 "
 							date={date}
 							setDate={setDate}
 						/>
@@ -36,13 +40,13 @@ const ProjectTasks = () => {
 				</div>
 
 				<TabsContent value="table">
-					<TableProjectsTask />
+					<TableProjectsTask tasks={tasks} />
 				</TabsContent>
 				<TabsContent value="kanban">
 					<KanbanProjectsTask />
 				</TabsContent>
 				<TabsContent value="calendar">
-					<CalendarProjectsTask />
+					<CalendarProjectsTask tasks={tasks} />
 				</TabsContent>
 			</Tabs>
 		</>

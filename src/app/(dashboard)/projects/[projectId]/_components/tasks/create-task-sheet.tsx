@@ -37,6 +37,9 @@ import SelectMultipleMembersDropdown from "@/components/select-multiple-members-
 import SelectOrCreateLabel from "@/components/select-or-create-label";
 import SelectSingleMemberDropdown from "@/components/select-single-member-dropdown";
 import LoadingIcon from "@/components/loading-icon";
+import { CalendarDateRangePicker } from "@/components/ui/calendar-date-range-picker";
+import { DateRange } from "react-day-picker";
+import { addDays } from "date-fns";
 
 interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {}
@@ -51,12 +54,20 @@ export function CreateTaskSheet({ ...props }: UpdateTaskSheetProps) {
 	const [assignee, setAssignee] = React.useState<string | null>();
 	const [reviewer, setReviewer] = React.useState<string>();
 	const [labels, setLabels] = React.useState<LabelType[]>([]);
+	const [date, setDate] = React.useState<DateRange | undefined>({
+		from: addDays(new Date(), -30),
+		to: new Date(),
+	});
 
 	const [isUpdatePending, startUpdateTransition] = React.useTransition();
 
 	async function onSubmit(input: NewTask) {
 		startUpdateTransition(async () => {
-			const newTodo = await createTaskMutation.mutateAsync(input);
+			const newTodo = await createTaskMutation.mutateAsync({
+				assigneeId: assignee,
+				reviewerId: reviewer,
+				...input,
+			});
 			form.reset();
 			props.onOpenChange?.(false);
 			if (newTodo) {
@@ -133,12 +144,21 @@ export function CreateTaskSheet({ ...props }: UpdateTaskSheetProps) {
 								</FormItem>
 							)}
 						/>
+						<FormLabel>From - To</FormLabel>
+						<CalendarDateRangePicker
+							date={date}
+							setDate={setDate}
+						/>
 						<SelectOrCreateLabel
 							onLabelSelect={(labels) => setLabels(labels)}
 						/>
 						<SelectSingleMemberDropdown
-							title="Select Assignee"
+							title="Assignee"
 							onMemberChange={(member) => setAssignee(member?.id)}
+						/>
+						<SelectSingleMemberDropdown
+							title="Select Reviewer"
+							onMemberChange={(member) => setReviewer(member?.id)}
 						/>
 						<SheetFooter className="gap-2 pt-2 sm:space-x-0">
 							<SheetClose asChild>

@@ -31,6 +31,36 @@ export const tasksRouter = createTRPCRouter({
 				.returning()
 				.then(takeFirst);
 		}),
+	listCalendar: protectedProcedure
+		.input(
+			z.object({
+				projectId: z.string(),
+				mode: z.enum(["day", "week", "month"]),
+				from: z.date(),
+				to: z.date(),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			const { projectId, mode, from, to } = input;
+
+			const task = await ctx.db.query.tasks.findMany({
+				where: and(
+					eq(tasks.projectId, projectId),
+					gte(tasks.from, from),
+					lte(tasks.to, to)
+				),
+				with: {
+					status: true,
+				},
+			});
+			return task.map((task) => ({
+				id: task.id,
+				title: task.title,
+				color: task.status?.color || "blue",
+				start: task.from ?? new Date(),
+				end: task.to ?? new Date(),
+			}));
+		}),
 	list: protectedProcedure
 		.input(getTodosSchema)
 		.query(async ({ ctx, input }) => {

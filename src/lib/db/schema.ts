@@ -5,7 +5,6 @@ import {
 	integer,
 	text,
 	boolean,
-	varchar,
 	pgSequence,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
@@ -208,7 +207,8 @@ export const tasks = pgTable("tasks", {
 	reviewerId: text("reviewer_id").references(() => user.id, {
 		onDelete: "set null", //  Set null if user is deleted
 	}),
-	dueDate: timestamp("due_date"),
+	from: timestamp("from").defaultNow(),
+	to: timestamp("to").defaultNow(),
 	...timestamps,
 });
 
@@ -360,7 +360,10 @@ export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
 	workspaces: many(workspaceMembers),
 	projects: many(projectMembers),
-	tasks: many(tasks, { relationName: "assignee" }),
+	assignee: many(tasks, {
+		relationName: "assignee",
+	}),
+	reviewer: many(tasks, { relationName: "reviewer" }),
 	timeEntries: many(timeEntries),
 	notes: many(notes),
 	attachments: many(attachments),
@@ -443,6 +446,11 @@ export const tasksRelations = relations(tasks, ({ many, one }) => ({
 		fields: [tasks.assigneeId],
 		references: [user.id],
 		relationName: "assignee",
+	}),
+	reviewer: one(user, {
+		fields: [tasks.reviewerId],
+		references: [user.id],
+		relationName: "reviewer",
 	}),
 	subtasks: many(subTasks),
 	status: one(taskStatuses, {
@@ -599,17 +607,14 @@ export const inboxRelations = relations(userInbox, ({ one }) => ({
 export const todoSequece = pgSequence("todo_sequence", {
 	startWith: 1,
 	maxValue: 10000,
-	cache: 10,
 });
 
 export const projectSequence = pgSequence("project_sequence", {
 	startWith: 1,
 	maxValue: 10000,
-	cache: 10,
 });
 
 export const taskSequence = pgSequence("task_sequence", {
 	startWith: 1,
 	maxValue: 10000,
-	cache: 10,
 });

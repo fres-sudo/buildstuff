@@ -33,7 +33,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 import DeleteEntityDialog from "@/components/delete-entity-confirmation-dialog";

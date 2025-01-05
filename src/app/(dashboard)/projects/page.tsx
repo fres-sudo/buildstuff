@@ -1,17 +1,24 @@
+"use client";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProjectsList from "./_components/projects-list";
 import NoProjects from "./_components/no-projects";
-import { api } from "@/trpc/server";
 import PageContainer from "@/components/layout/page-container";
 import { PageTitle } from "../_components/page-title";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { api } from "@/trpc/react";
+import { useWorkspace } from "@/hooks/use-workspace";
+import { toast } from "sonner";
 
-export default async function ProjectsPage() {
-	const currentWorkspace = await api.workspaces.getCurrent();
+export default function ProjectsPage() {
+	const { currentWorkspace } = useWorkspace();
 
-	const projects = await api.projects.list({
-		workspaceId: currentWorkspace.id,
+	const query = api.projects.list.useQuery({
+		workspaceId: currentWorkspace?.id || "",
 	});
+
+	if (query.error) {
+		toast.error("Failed to fetch projects");
+	}
 
 	return (
 		<PageContainer>
@@ -19,12 +26,12 @@ export default async function ProjectsPage() {
 				title="Projects 💻"
 				description="Those are all the projects in this workspace."
 			/>
-			{!projects || !currentWorkspace ? (
+			{query.isLoading || !currentWorkspace ? (
 				<Loading />
-			) : !projects?.length ? (
+			) : !query.data?.length ? (
 				<NoProjects />
 			) : (
-				<ProjectsList projects={projects} />
+				<ProjectsList projects={query.data} />
 			)}
 		</PageContainer>
 	);
@@ -32,7 +39,7 @@ export default async function ProjectsPage() {
 
 const Loading = () => {
 	return (
-		<div className="space-y-4 mx-4">
+		<div className="space-y-4 mt-4">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 				{Array.from({ length: 3 }).map((_, index) => (
 					<Card

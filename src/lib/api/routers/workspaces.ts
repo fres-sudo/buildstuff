@@ -6,6 +6,7 @@ import {
 	workspaceMembers,
 	user,
 	workspaceInvitations,
+	session,
 } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
 import { takeFirst, takeFirstOrThrow } from "@/lib/utils";
@@ -20,35 +21,6 @@ import {
 import { newWorkspaceSchema } from "@/lib/db/zod.schema";
 
 export const workspacesRouter = createTRPCRouter({
-	// ** Get Current Workspace **
-	getCurrent: protectedProcedure.query(async ({ ctx }) => {
-		const userId = ctx.session.user.id;
-
-		const savedWorkspace =
-			typeof window !== "undefined"
-				? localStorage.getItem("currentWorkspace")
-				: null;
-		if (savedWorkspace) {
-			return JSON.parse(savedWorkspace);
-		}
-
-		const currentWorkspace = await ctx.db.query.workspaceMembers.findFirst({
-			where: eq(workspaceMembers.userId, userId),
-			with: { workspace: true },
-		});
-
-		if (currentWorkspace?.workspace) {
-			if (typeof window !== "undefined") {
-				localStorage.setItem(
-					"currentWorkspace",
-					JSON.stringify(currentWorkspace.workspace)
-				);
-			}
-			return currentWorkspace.workspace;
-		}
-
-		return null;
-	}),
 	// **Create Workspace**
 	create: protectedProcedure
 		.input(newWorkspaceSchema)

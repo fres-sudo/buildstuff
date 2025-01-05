@@ -2,6 +2,7 @@
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { signIn, signUp } from "@/lib/api/auth/auth-client";
+import { api } from "@/trpc/react";
 
 const ProvidersComponent = () => {
 	return (

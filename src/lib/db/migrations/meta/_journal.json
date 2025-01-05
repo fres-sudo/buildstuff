@@ -141,6 +141,41 @@
       "when": 1735128027256,
       "tag": "0019_flimsy_ted_forrester",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1735846432846,
+      "tag": "0020_yellow_white_queen",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1735852775470,
+      "tag": "0021_secret_human_fly",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1735860085314,
+      "tag": "0022_outgoing_pandemic",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1735861321438,
+      "tag": "0023_secret_preak",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1735913501170,
+      "tag": "0024_broad_magneto",
+      "breakpoints": true
     }
   ]
 }
