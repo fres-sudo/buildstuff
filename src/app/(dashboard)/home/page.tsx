@@ -26,7 +26,6 @@ export default function Page() {
 							Here's what you've been up to today
 						</p>
 					</h2>
-
 					<div className="items-center space-x-2 ">
 						<CalendarDateRangePicker
 							date={date}

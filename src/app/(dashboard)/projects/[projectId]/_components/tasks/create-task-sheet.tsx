@@ -40,12 +40,14 @@ import LoadingIcon from "@/components/loading-icon";
 import { CalendarDateRangePicker } from "@/components/ui/calendar-date-range-picker";
 import { DateRange } from "react-day-picker";
 import { addDays } from "date-fns";
+import { useParams } from "next/navigation";
 
 interface UpdateTaskSheetProps
 	extends React.ComponentPropsWithRef<typeof Sheet> {}
 
 export function CreateTaskSheet({ ...props }: UpdateTaskSheetProps) {
 	const createTaskMutation = api.tasks.create.useMutation();
+	const { projectId } = useParams();
 
 	const form = useForm<NewTask>({
 		resolver: zodResolver(newTaskSchema),
@@ -63,9 +65,12 @@ export function CreateTaskSheet({ ...props }: UpdateTaskSheetProps) {
 
 	async function onSubmit(input: NewTask) {
 		startUpdateTransition(async () => {
+			console.log("input", input);
+			console.log("assignee", assignee);
 			const newTodo = await createTaskMutation.mutateAsync({
 				assigneeId: assignee,
 				reviewerId: reviewer,
+				projectId: projectId as string,
 				...input,
 			});
 			form.reset();

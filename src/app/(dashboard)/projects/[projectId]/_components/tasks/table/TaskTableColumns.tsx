@@ -13,6 +13,7 @@ import {
 	XCircleIcon,
 } from "lucide-react";
 import { TasksProps } from "../projects-tasks";
+import { formatDate } from "@/lib/data-table/utils";
 
 export const columns: ColumnDef<TasksProps>[] = [
 	{
@@ -75,20 +76,26 @@ export const columns: ColumnDef<TasksProps>[] = [
 			/>
 		),
 		cell: ({ row }) => {
-			const status = statuses.find(
-				(status) => status.value === row.getValue("status")
-			);
+			console.log(row);
+			const status = row.getValue("status") as {
+				id: string;
+				name: string;
+				createdAt: Date;
+				updatedAt: Date | null;
+				projectId: string | null;
+				color: string | null;
+				order: number | null;
+				isFinal: boolean | null;
+				isDefault: boolean | null;
+			} | null;
 
 			if (!status) {
-				return null;
+				return <Badge color="gray">Unknown</Badge>;
 			}
 
 			return (
 				<div className="flex w-[100px] items-center">
-					{status.icon && (
-						<status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
-					)}
-					<span>{status.label}</span>
+					<span>{status?.name}</span>
 				</div>
 			);
 		},
@@ -144,6 +151,7 @@ export const columns: ColumnDef<TasksProps>[] = [
 				createdAt: Date;
 				updatedAt: Date;
 			} | null;
+			console.log(assignee);
 			return (
 				<div className="flex items-center">
 					<Avatar className="h-8 w-8">
@@ -177,7 +185,7 @@ export const columns: ColumnDef<TasksProps>[] = [
 			return (
 				<div className="flex items-center">
 					<CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-					<span>{date.toLocaleDateString()}</span>
+					{formatDate(date)}
 				</div>
 			);
 		},
@@ -195,7 +203,7 @@ export const columns: ColumnDef<TasksProps>[] = [
 			return (
 				<div className="flex items-center">
 					<CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-					<span>{date.toLocaleDateString()}</span>
+					<span>{formatDate(date)}</span>
 				</div>
 			);
 		},

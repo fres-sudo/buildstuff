@@ -1,26 +1,51 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { Skeleton } from "./ui/skeleton";
+import { cn } from "@/lib/utils";
 
 type StatsCardProps = {
 	title: string;
 	icon: LucideIcon;
 	content: string;
+	subContent: string;
 	label: string;
+	trend: boolean;
 };
 
 type StatsCardOverviewProps = StatsCardProps[];
 
 const StatsCard = ({ props }: { props: StatsCardProps }) => {
+	const isZero = props.subContent === "0";
 	return (
-		<Card>
-			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-				<CardTitle className="text-sm font-medium">{props.title}</CardTitle>
-				<props.icon className="h-4 w-4 text-muted-foreground" />
-			</CardHeader>
-			<CardContent>
-				<div className="text-2xl font-bold">{props.content}</div>
-				<p className="text-xs text-muted-foreground">{props.label}</p>
+		<Card className="overflow-hidden border-muted transition-all duration-300 hover:scale-105 hover:shadow-lg">
+			<CardContent className="p-4">
+				<div className="flex items-center justify-between mb-2">
+					<h3 className="text-sm font-medium text-gray-400">{props.title}</h3>
+					<props.icon className="h-4 w-4 text-gray-400" />
+				</div>
+				<div className="text-2xl font-bold text-white mb-2">
+					{props.content}
+				</div>
+				<div className="flex items-center justify-between">
+					<span className="text-xs text-gray-400">{props.label}</span>
+					<div
+						className={cn(
+							"flex items-center space-x-1 text-sm font-medium",
+							isZero
+								? "text-muted-foreground"
+								: props.trend
+									? "text-green-400"
+									: "text-red-400"
+						)}>
+						<span>
+							{isZero ? "" : props.trend ? "+" : "-"}
+							{props.subContent}
+						</span>
+						<span className="text-xs">
+							{isZero ? "-" : props.trend ? "↑" : "↓"}
+						</span>
+					</div>
+				</div>
 			</CardContent>
 		</Card>
 	);

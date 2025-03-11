@@ -151,7 +151,7 @@ export function ProjectSettingsDialog({
 								</FormItem>
 							)}
 						/>
-						{isAdmin && (
+						{/* {isAdmin && (
 							<>
 								<FormField
 									control={form.control}
@@ -203,7 +203,7 @@ export function ProjectSettingsDialog({
 									)}
 								/>
 							</>
-						)}
+						)} */}
 						<DialogFooter>
 							<DeleteEntityDialog
 								entityName={project.name}

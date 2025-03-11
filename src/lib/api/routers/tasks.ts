@@ -13,9 +13,9 @@ import {
 	inArray,
 	lte,
 } from "drizzle-orm";
-import { projectMembers, tasks, todos } from "@/lib/db/schema";
+import { projectMembers, tasks, taskStatuses, todos } from "@/lib/db/schema";
 import { TRPCError } from "@trpc/server";
-import { takeFirst } from "@/lib/utils";
+import { takeFirst, takeFirstOrThrow } from "@/lib/utils";
 import { newTaskSchema, newTodoSchema } from "@/lib/db/zod.schema";
 import { getTodosSchema } from "@/lib/data-table/todos-cached-search";
 import { Todo } from "@/lib/db/schema.types";
@@ -25,11 +25,20 @@ export const tasksRouter = createTRPCRouter({
 	create: protectedProcedure
 		.input(newTaskSchema)
 		.mutation(async ({ ctx, input }) => {
+			const status = await ctx.db.query.taskStatuses.findFirst({
+				where: and(
+					eq(taskStatuses.projectId, input.projectId ?? ""),
+					eq(taskStatuses.isDefault, true)
+				),
+			});
 			return await ctx.db
 				.insert(tasks)
-				.values(input)
+				.values({
+					...input,
+					statusId: status?.id,
+				})
 				.returning()
-				.then(takeFirst);
+				.then(takeFirstOrThrow);
 		}),
 	listCalendar: protectedProcedure
 		.input(

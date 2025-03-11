@@ -237,6 +237,8 @@ export const taskStatuses = pgTable("task_statuses", {
 	name: text("name").notNull(),
 	order: integer("order").default(0),
 	color: text("color"),
+	isFinal: boolean("is_final").default(false),
+	isDefault: boolean("is_default").default(false),
 	...timestamps,
 });
 
@@ -249,15 +251,6 @@ export const taskLabels = pgTable("task_labels", {
 		onDelete: "cascade",
 	}),
 	...timestamps,
-});
-
-export const defaultTaskStatuses = pgTable("default_task_statuses", {
-	id: text("id")
-		.primaryKey()
-		.$defaultFn(() => createId()),
-	name: text("name").notNull(),
-	color: text("color"),
-	order: integer("order").default(0),
 });
 
 export const timeEntries = pgTable("time_entries", {
